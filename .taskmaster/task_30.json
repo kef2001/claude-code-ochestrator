@@ -1,0 +1,15 @@
+{
+  "id": "30",
+  "title": "Add Error Metrics Collection",
+  "description": "Extend the monitoring module to collect error metrics. Should include: 1) ErrorMetrics class to track different types of errors, 2) Integration with claude_error_handler.py to automatically record errors, 3) Error categorization (validation, execution, timeout, etc.), 4) Error frequency tracking",
+  "status": "pending",
+  "priority": "high",
+  "createdAt": "2025-07-04T06:38:00.049376",
+  "updatedAt": "2025-07-04T06:38:00.049388",
+  "tags": [
+    "monitoring",
+    "metrics",
+    "follow-up"
+  ],
+  "subtasks": []
+}

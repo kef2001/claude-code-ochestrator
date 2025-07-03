@@ -1,0 +1,11 @@
+{
+  "id": 10,
+  "title": "Define rollback strategies",
+  "description": "Design and implement different rollback strategies (full, partial, selective)",
+  "status": "pending",
+  "dependencies": [],
+  "priority": "high",
+  "details": "Define rollback strategies:\n- Full rollback: restore entire system state\n- Partial rollback: restore specific components\n- Selective rollback: restore specific tasks/operations\n- Implement strategy selection logic",
+  "createdAt": "2025-07-04T06:40:55.003524",
+  "updatedAt": "2025-07-04T06:40:55.003526"
+}

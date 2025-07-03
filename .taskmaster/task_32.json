@@ -1,0 +1,15 @@
+{
+  "id": "32",
+  "title": "Add Metrics Persistence",
+  "description": "Implement metrics persistence to store historical data. Should include: 1) SQLite storage for metrics data, 2) Automatic rollup/aggregation for older data, 3) Configurable retention policies, 4) Migration from in-memory to persistent storage",
+  "status": "pending",
+  "priority": "medium",
+  "createdAt": "2025-07-04T06:38:00.049614",
+  "updatedAt": "2025-07-04T06:38:00.049616",
+  "tags": [
+    "monitoring",
+    "metrics",
+    "follow-up"
+  ],
+  "subtasks": []
+}

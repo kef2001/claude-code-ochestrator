@@ -1,0 +1,16 @@
+{
+  "id": "37",
+  "title": "Implement Token Usage Monitoring Dashboard",
+  "description": "Implement comprehensive token usage monitoring with UI dashboard. Create a TokenUsageMonitor class that: 1) Aggregates token usage from ClaudeDirectAPI and InlineTaskExecutor, 2) Tracks usage per task, per session, and total, 3) Implements budget tracking with configurable limits, 4) Provides alerts when approaching budget limits, 5) Creates a simple CLI dashboard to display current usage stats, 6) Integrates with ExecutionTracer to include token metrics in traces",
+  "status": "pending",
+  "priority": "high",
+  "createdAt": "2025-07-03T23:45:00.000000",
+  "updatedAt": "2025-07-03T23:45:00.000000",
+  "tags": [
+    "monitoring",
+    "token-usage",
+    "dashboard",
+    "follow-up"
+  ],
+  "subtasks": []
+}

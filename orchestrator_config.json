@@ -1,0 +1,61 @@
+{
+  "models": {
+    "manager": {
+      "model": "opus",
+      "description": "Opus model for planning and orchestration"
+    },
+    "worker": {
+      "model": "sonnet",
+      "description": "Sonnet model for task execution"
+    }
+  },
+  "execution": {
+    "max_workers": 3,
+    "worker_timeout": 36000,
+    "manager_timeout": 36000,
+    "task_queue_timeout": 1.0,
+    "default_working_dir": null,
+    "max_turns": null,
+    "max_retries": 3,
+    "retry_base_delay": 1.0,
+    "retry_max_delay": 60.0,
+    "bash_default_timeout_ms": 120000,
+    "bash_max_timeout_ms": 600000,
+    "bash_max_output_length": 30000,
+    "use_direct_api": true
+  },
+  "monitoring": {
+    "progress_interval": 10,
+    "verbose_logging": false,
+    "show_progress_bar": true,
+    "enable_opus_review": true,
+    "usage_warning_threshold": 80,
+    "check_usage_before_start": true
+  },
+  "claude_cli": {
+    "command": "claude",
+    "flags": {
+      "verbose": false,
+      "dangerously_skip_permissions": true,
+      "allowed_tools": [],
+      "disallowed_tools": [],
+      "output_format": "text",
+      "input_format": "text"
+    },
+    "settings": {},
+    "environment": {}
+  },
+  "notifications": {
+    "slack_webhook_url": null,
+    "notify_on_task_complete": true,
+    "notify_on_task_failed": true,
+    "notify_on_all_complete": true
+  },
+  "git": {
+    "auto_commit": false,
+    "commit_message_prefix": "\ud83e\udd16 Auto-commit by Claude Orchestrator"
+  },
+  "locale": {
+    "language": "en"
+  }
+}

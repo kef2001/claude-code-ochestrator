@@ -1,0 +1,186 @@
+{
+  "meta": {
+    "projectName": "claude-code-orchestrator",
+    "projectVersion": "1.0.0",
+    "createdAt": "2025-07-04T06:31:49.026302",
+    "updatedAt": "2025-07-04T06:32:07.297676"
+  },
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Design Feedback Data Model",
+      "description": "Create schema for structured feedback data including ratings, comments, and metadata",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Define data structures for feedback types, rating scales, required fields. Consider extensibility.",
+      "testStrategy": "Unit tests for data model validation and constraints",
+      "subtasks": [],
+      "createdAt": "2025-07-04T06:32:07.294610",
+      "updatedAt": "2025-07-04T06:32:07.294634",
+      "tags": []
+    },
+    {
+      "id": 2,
+      "title": "Implement Feedback Storage Layer",
+      "description": "Create persistence layer for storing and retrieving feedback data",
+      "status": "pending",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "details": "Implement database operations, caching if needed, error handling",
+      "testStrategy": "Integration tests with test database, verify CRUD operations",
+      "subtasks": [],
+      "createdAt": "2025-07-04T06:32:07.295467",
+      "updatedAt": "2025-07-04T06:32:07.295470",
+      "tags": []
+    },
+    {
+      "id": 3,
+      "title": "Create Core Feedback Collection Module",
+      "description": "Build module to handle feedback collection at decision points",
+      "status": "pending",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "details": "Create feedback prompts, validation, collection handlers",
+      "testStrategy": "Unit tests for feedback collection logic and validation",
+      "subtasks": [],
+      "createdAt": "2025-07-04T06:32:07.295814",
+      "updatedAt": "2025-07-04T06:32:07.295817",
+      "tags": []
+    },
+    {
+      "id": 4,
+      "title": "Task Decomposition Integration",
+      "description": "Add feedback collection to task decomposition workflow",
+      "status": "pending",
+      "dependencies": [
+        2,
+        3
+      ],
+      "priority": "medium",
+      "details": "Hook into decomposition process, add non-blocking feedback collection",
+      "testStrategy": "Integration tests verifying decomposition flow with feedback",
+      "subtasks": [],
+      "createdAt": "2025-07-04T06:32:07.296119",
+      "updatedAt": "2025-07-04T06:32:07.296121",
+      "tags": []
+    },
+    {
+      "id": 5,
+      "title": "Worker Allocation Integration",
+      "description": "Add feedback collection to worker allocation workflow",
+      "status": "pending",
+      "dependencies": [
+        2,
+        3
+      ],
+      "priority": "medium",
+      "details": "Hook into allocation process, add non-blocking feedback collection",
+      "testStrategy": "Integration tests verifying allocation flow with feedback",
+      "subtasks": [],
+      "createdAt": "2025-07-04T06:32:07.296430",
+      "updatedAt": "2025-07-04T06:32:07.296432",
+      "tags": []
+    },
+    {
+      "id": 6,
+      "title": "Task Completion Integration",
+      "description": "Add feedback collection to task completion workflow",
+      "status": "pending",
+      "dependencies": [
+        2,
+        3
+      ],
+      "priority": "medium",
+      "details": "Hook into completion process, add non-blocking feedback collection",
+      "testStrategy": "Integration tests verifying completion flow with feedback",
+      "subtasks": [],
+      "createdAt": "2025-07-04T06:32:07.296789",
+      "updatedAt": "2025-07-04T06:32:07.296791",
+      "tags": []
+    },
+    {
+      "id": 7,
+      "title": "Feedback Analysis Module",
+      "description": "Create module for analyzing collected feedback data",
+      "status": "pending",
+      "dependencies": [
+        2
+      ],
+      "priority": "low",
+      "details": "Implement analysis functions, metrics calculation, reporting tools",
+      "testStrategy": "Unit tests for analysis functions with test datasets",
+      "subtasks": [],
+      "createdAt": "2025-07-04T06:32:07.297186",
+      "updatedAt": "2025-07-04T06:32:07.297188",
+      "tags": []
+    },
+    {
+      "id": 8,
+      "title": "End-to-End Testing",
+      "description": "Comprehensive testing of entire feedback system",
+      "status": "pending",
+      "dependencies": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "priority": "medium",
+      "details": "Test full workflow integration, performance, error handling",
+      "testStrategy": "End-to-end tests covering complete feedback lifecycle",
+      "subtasks": [],
+      "createdAt": "2025-07-04T06:32:07.297670",
+      "updatedAt": "2025-07-04T06:32:07.297672",
+      "tags": []
+    },
+    {
+      "id": 9,
+      "title": "Implement RollbackManager class",
+      "description": "Create rollback.py module with RollbackManager class that can restore system state from checkpoints",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Implement core rollback functionality:\n- Create RollbackManager class in claude_orchestrator/rollback.py\n- Integrate with CheckpointManager to restore state\n- Handle rollback triggers (errors, manual requests)\n- Implement rollback validation\n- Add logging and monitoring",
+      "createdAt": "2025-07-04T06:40:55.003366",
+      "updatedAt": "2025-07-04T06:40:55.003370"
+    },
+    {
+      "id": 10,
+      "title": "Define rollback strategies",
+      "description": "Design and implement different rollback strategies (full, partial, selective)",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Define rollback strategies:\n- Full rollback: restore entire system state\n- Partial rollback: restore specific components\n- Selective rollback: restore specific tasks/operations\n- Implement strategy selection logic",
+      "createdAt": "2025-07-04T06:40:55.003524",
+      "updatedAt": "2025-07-04T06:40:55.003526"
+    },
+    {
+      "id": 11,
+      "title": "Integrate rollback with orchestrator",
+      "description": "Add rollback hooks and error recovery to EnhancedOrchestrator",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "details": "Integration points:\n- Add rollback triggers in error handlers\n- Implement automatic rollback on critical failures\n- Add manual rollback commands\n- Update orchestrator state management",
+      "createdAt": "2025-07-04T06:40:55.003625",
+      "updatedAt": "2025-07-04T06:40:55.003627"
+    },
+    {
+      "id": 12,
+      "title": "Create rollback tests",
+      "description": "Write comprehensive tests for rollback mechanism",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "details": "Test coverage:\n- Unit tests for RollbackManager\n- Integration tests with CheckpointManager\n- End-to-end rollback scenarios\n- Error recovery tests\n- Performance tests for large state rollbacks",
+      "createdAt": "2025-07-04T06:40:55.003725",
+      "updatedAt": "2025-07-04T06:40:55.003727"
+    }
+  ]
+}

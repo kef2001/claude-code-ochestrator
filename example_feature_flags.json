@@ -1,0 +1,50 @@
+{
+  "flags": [
+    {
+      "name": "enable_parallel_processing",
+      "enabled": true,
+      "value": null,
+      "description": "Enable parallel task processing in orchestrator",
+      "flag_type": "boolean"
+    },
+    {
+      "name": "max_worker_threads",
+      "enabled": true,
+      "value": 4,
+      "description": "Maximum number of worker threads",
+      "flag_type": "number"
+    },
+    {
+      "name": "debug_mode",
+      "enabled": false,
+      "value": null,
+      "description": "Enable debug logging and detailed output",
+      "flag_type": "boolean"
+    },
+    {
+      "name": "task_timeout_seconds",
+      "enabled": true,
+      "value": 300,
+      "description": "Default timeout for tasks in seconds",
+      "flag_type": "number"
+    },
+    {
+      "name": "preferred_claude_model",
+      "enabled": true,
+      "value": "claude-3-sonnet-20240229",
+      "description": "Preferred Claude model for worker tasks",
+      "flag_type": "string"
+    },
+    {
+      "name": "circuit_breaker_config",
+      "enabled": true,
+      "value": {
+        "failure_threshold": 5,
+        "recovery_timeout": 60,
+        "half_open_max_calls": 3
+      },
+      "description": "Circuit breaker configuration for error handling",
+      "flag_type": "json"
+    }
+  ]
+}

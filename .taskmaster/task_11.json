@@ -1,0 +1,11 @@
+{
+  "id": 11,
+  "title": "Integrate rollback with orchestrator",
+  "description": "Add rollback hooks and error recovery to EnhancedOrchestrator",
+  "status": "pending",
+  "dependencies": [],
+  "priority": "medium",
+  "details": "Integration points:\n- Add rollback triggers in error handlers\n- Implement automatic rollback on critical failures\n- Add manual rollback commands\n- Update orchestrator state management",
+  "createdAt": "2025-07-04T06:40:55.003625",
+  "updatedAt": "2025-07-04T06:40:55.003627"
+}

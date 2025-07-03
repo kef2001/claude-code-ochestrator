@@ -1,0 +1,15 @@
+{
+  "id": "31",
+  "title": "Create Metrics Dashboard",
+  "description": "Create a simple metrics dashboard or reporting functionality that displays: 1) Feature usage statistics, 2) Error rates and trends, 3) Task execution metrics from ExecutionTracer, 4) Export functionality to JSON/CSV for analysis",
+  "status": "pending",
+  "priority": "medium",
+  "createdAt": "2025-07-04T06:38:00.049513",
+  "updatedAt": "2025-07-04T06:38:00.049514",
+  "tags": [
+    "monitoring",
+    "metrics",
+    "follow-up"
+  ],
+  "subtasks": []
+}

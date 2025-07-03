@@ -1,0 +1,11 @@
+{
+  "id": 9,
+  "title": "Implement RollbackManager class",
+  "description": "Create rollback.py module with RollbackManager class that can restore system state from checkpoints",
+  "status": "pending",
+  "dependencies": [],
+  "priority": "high",
+  "details": "Implement core rollback functionality:\n- Create RollbackManager class in claude_orchestrator/rollback.py\n- Integrate with CheckpointManager to restore state\n- Handle rollback triggers (errors, manual requests)\n- Implement rollback validation\n- Add logging and monitoring",
+  "createdAt": "2025-07-04T06:40:55.003366",
+  "updatedAt": "2025-07-04T06:40:55.003370"
+}

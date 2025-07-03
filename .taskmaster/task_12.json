@@ -1,0 +1,11 @@
+{
+  "id": 12,
+  "title": "Create rollback tests",
+  "description": "Write comprehensive tests for rollback mechanism",
+  "status": "pending",
+  "dependencies": [],
+  "priority": "medium",
+  "details": "Test coverage:\n- Unit tests for RollbackManager\n- Integration tests with CheckpointManager\n- End-to-end rollback scenarios\n- Error recovery tests\n- Performance tests for large state rollbacks",
+  "createdAt": "2025-07-04T06:40:55.003725",
+  "updatedAt": "2025-07-04T06:40:55.003727"
+}
