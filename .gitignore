@@ -51,3 +51,22 @@ archive/
 *.backup
 *.original
 *.tmp
+
+# Work files and temporary scripts
+scripts/add_*_task*.py
+scripts/create_*_task*.py
+scripts/test_*.py
+scripts/debug_*.py
+scripts/fix_*.py
+scripts/enable_*.py
+scripts/run_*.py
+scripts/*_patch.py
+docs/*_review*.md
+docs/*_followup*.md
+docs/task_*.md
+scripts/*_followup*.py
+scripts/*_followup*.json
+scripts/task_*.json
+
+# Keep the organize_files.py in root
+!organize_files.py
