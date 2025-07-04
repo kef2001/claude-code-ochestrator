@@ -3,11 +3,13 @@
     "projectName": "claude-code-orchestrator",
     "projectVersion": "1.0.0",
     "createdAt": "2025-07-04T12:20:27.408072",
-    "updatedAt": "2025-07-04T12:20:56.088365",
+    "updatedAt": "2025-07-04T22:33:31.761245",
     "description": "Claude Orchestrator Task Management",
-    "totalTasks": 56,
-    "completedTasks": 12,
-    "pendingTasks": 44
+    "totalTasks": 122,
+    "completedTasks": 0,
+    "pendingTasks": 192,
+    "last_updated": "2025-07-04T07:16:38.978056Z",
+    "total_tasks": 152
   },
   "tasks": [
     {
@@ -21,7 +23,7 @@
       "testStrategy": "Unit tests for data model validation and constraints",
       "subtasks": [],
       "createdAt": "2025-07-04T06:32:07.294610",
-      "updatedAt": "2025-07-04T10:38:54.282612",
+      "updatedAt": "2025-07-04T17:36:30.828595",
       "tags": []
     },
     {
@@ -37,7 +39,7 @@
       "testStrategy": "Integration tests with test database, verify CRUD operations",
       "subtasks": [],
       "createdAt": "2025-07-04T06:32:07.295467",
-      "updatedAt": "2025-07-04T10:39:04.378460",
+      "updatedAt": "2025-07-04T17:47:00.959544",
       "tags": []
     },
     {
@@ -53,14 +55,14 @@
       "testStrategy": "Unit tests for feedback collection logic and validation",
       "subtasks": [],
       "createdAt": "2025-07-04T06:32:07.295814",
-      "updatedAt": "2025-07-04T10:08:38.338400",
+      "updatedAt": "2025-07-04T18:07:08.636461",
       "tags": []
     },
     {
       "id": 4,
       "title": "Task Decomposition Integration",
       "description": "Add feedback collection to task decomposition workflow",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         2,
         3
@@ -70,7 +72,7 @@
       "testStrategy": "Integration tests verifying decomposition flow with feedback",
       "subtasks": [],
       "createdAt": "2025-07-04T06:32:07.296119",
-      "updatedAt": "2025-07-04T06:32:07.296121",
+      "updatedAt": "2025-07-04T18:23:24.204991",
       "tags": []
     },
     {
@@ -87,14 +89,14 @@
       "testStrategy": "Integration tests verifying allocation flow with feedback",
       "subtasks": [],
       "createdAt": "2025-07-04T06:32:07.296430",
-      "updatedAt": "2025-07-04T10:08:48.377493",
+      "updatedAt": "2025-07-04T18:29:26.475677",
       "tags": []
     },
     {
       "id": 6,
       "title": "Task Completion Integration",
       "description": "Add feedback collection to task completion workflow",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         2,
         3
@@ -104,14 +106,14 @@
       "testStrategy": "Integration tests verifying completion flow with feedback",
       "subtasks": [],
       "createdAt": "2025-07-04T06:32:07.296789",
-      "updatedAt": "2025-07-04T06:32:07.296791",
+      "updatedAt": "2025-07-04T20:40:08.612177",
       "tags": []
     },
     {
       "id": 7,
       "title": "Feedback Analysis Module",
       "description": "Create module for analyzing collected feedback data",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         2
       ],
@@ -120,7 +122,7 @@
       "testStrategy": "Unit tests for analysis functions with test datasets",
       "subtasks": [],
       "createdAt": "2025-07-04T06:32:07.297186",
-      "updatedAt": "2025-07-04T06:32:07.297188",
+      "updatedAt": "2025-07-04T22:14:20.287228",
       "tags": []
     },
     {
@@ -139,7 +141,7 @@
       "testStrategy": "End-to-end tests covering complete feedback lifecycle",
       "subtasks": [],
       "createdAt": "2025-07-04T06:32:07.297670",
-      "updatedAt": "2025-07-04T10:08:58.403710",
+      "updatedAt": "2025-07-04T22:26:16.960853",
       "tags": []
     },
     {
@@ -152,7 +154,7 @@
       "details": "Implement core rollback functionality:\n- Create RollbackManager class in claude_orchestrator/rollback.py\n- Integrate with CheckpointManager to restore state\n- Handle rollback triggers (errors, manual requests)\n- Implement rollback validation\n- Add logging and monitoring",
       "subtasks": [],
       "createdAt": "2025-07-04T06:40:55.003366",
-      "updatedAt": "2025-07-04T12:20:56.020882",
+      "updatedAt": "2025-07-04T22:33:31.761239",
       "tags": []
     },
     {
@@ -172,7 +174,7 @@
       "id": 11,
       "title": "Integrate rollback with orchestrator",
       "description": "Add rollback hooks and error recovery to EnhancedOrchestrator",
-      "status": "done",
+      "status": "pending",
       "dependencies": [],
       "priority": "medium",
       "details": "Integration points:\n- Add rollback triggers in error handlers\n- Implement automatic rollback on critical failures\n- Add manual rollback commands\n- Update orchestrator state management",
@@ -198,7 +200,7 @@
       "id": "60d49de0-9c97-404d-8c93-954d1b542521",
       "title": "Implement the actual RollbackManager class in claude_orchestrator/rollback.py with full checkpoint f...",
       "description": "Implement the actual RollbackManager class in claude_orchestrator/rollback.py with full checkpoint functionality including: create_checkpoint(), restore_checkpoint(), list_checkpoints(), delete_checkpoint(), and validate_checkpoint() methods. Include proper error handling and state validation.",
-      "status": "done",
+      "status": "pending",
       "dependencies": [],
       "priority": "high",
       "subtasks": [],
@@ -215,14 +217,14 @@
       "priority": "high",
       "subtasks": [],
       "createdAt": "2025-07-04T01:04:51.454059+00:00",
-      "updatedAt": "2025-07-04T01:04:51.454061+00:00",
+      "updatedAt": "2025-07-04T17:13:07.508747",
       "tags": []
     },
     {
       "id": "b8fe2e68-16e3-443b-bb01-72596823e832",
       "title": "Create integration tests for RollbackManager with TaskMaster to ensure proper system state capture a...",
       "description": "Create integration tests for RollbackManager with TaskMaster to ensure proper system state capture and restoration during rollback operations",
-      "status": "done",
+      "status": "pending",
       "dependencies": [],
       "priority": "medium",
       "subtasks": [],
@@ -234,7 +236,7 @@
       "id": "8a90197c-d450-4bd9-a6d9-132b98ac9f14",
       "title": "Add documentation for RollbackManager usage in docs/rollback.md including examples, best practices, ...",
       "description": "Add documentation for RollbackManager usage in docs/rollback.md including examples, best practices, and checkpoint management strategies",
-      "status": "done",
+      "status": "pending",
       "dependencies": [],
       "priority": "low",
       "subtasks": [],
@@ -270,7 +272,7 @@
       "details": "Requirements:\n1. Create feedback_storage.py module in claude_orchestrator/\n2. Define SQLite schema for feedback table with fields:\n   - id (primary key)\n   - task_id (foreign key)\n   - feedback_type (string)\n   - content (text)\n   - rating (integer 1-5)\n   - created_at (timestamp)\n   - updated_at (timestamp)\n3. Implement FeedbackStorage class with methods:\n   - __init__(db_path): Initialize connection\n   - create_feedback(task_id, type, content, rating): Create new feedback\n   - get_feedback(feedback_id): Retrieve single feedback\n   - get_feedback_by_task(task_id): Get all feedback for a task\n   - update_feedback(feedback_id, updates): Update existing feedback\n   - delete_feedback(feedback_id): Delete feedback\n   - close(): Close database connection\n4. Use context managers for proper connection handling\n5. Add transaction support for data integrity\n6. Include proper error handling and logging",
       "subtasks": [],
       "createdAt": "2025-07-04T10:20:32.901266",
-      "updatedAt": "2025-07-04T10:20:32.901271",
+      "updatedAt": "2025-07-04T15:44:01.155575",
       "tags": []
     },
     {
@@ -296,14 +298,14 @@
       "details": "1. Add feedback configuration to orchestrator_config.json\n2. Initialize FeedbackStorage in main orchestrator\n3. Capture worker feedback after task completion\n4. Store manager review feedback\n5. Add CLI commands for feedback operations:\n   - co feedback list [task-id]\n   - co feedback show [feedback-id]\n   - co feedback add [task-id] --type=review --content=\"...\"\n6. Update task status display to include feedback indicators",
       "subtasks": [],
       "createdAt": "2025-07-04T10:20:32.901288",
-      "updatedAt": "2025-07-04T10:20:32.901289",
+      "updatedAt": "2025-07-04T17:13:07.535997",
       "tags": []
     },
     {
       "id": "83d08d08-627b-4075-a1e3-374c646fd2fd",
       "title": "Document feedback storage system",
       "description": "Create comprehensive documentation for the feedback feature",
-      "status": "done",
+      "status": "pending",
       "dependencies": [],
       "priority": "low",
       "details": "1. Add feedback storage section to README.md\n2. Create docs/feedback_storage.md with:\n   - Architecture overview\n   - Database schema documentation\n   - API reference for FeedbackStorage class\n   - Usage examples\n   - Configuration options\n3. Add inline code documentation (docstrings)\n4. Update CLI help text for feedback commands",
@@ -316,7 +318,7 @@
       "id": 13,
       "title": "Create claude_orchestrator/feedback_collector",
       "description": "Create claude_orchestrator/feedback_collector.py with FeedbackCollector class that handles feedback collection at decision points. Include methods for: collect_feedback(), store_feedback(), retrieve_feedback(), and aggregate_feedback(). Ensure proper error handling and logging.",
-      "status": "done",
+      "status": "pending",
       "dependencies": [],
       "priority": "high",
       "subtasks": [],
@@ -345,14 +347,14 @@
       "priority": "medium",
       "subtasks": [],
       "createdAt": "2025-07-04T10:20:36.014407",
-      "updatedAt": "2025-07-04T10:20:36.014409",
+      "updatedAt": "2025-07-04T15:44:01.179810",
       "tags": []
     },
     {
       "id": 16,
       "title": "Integrate feedback collection into existing decision points in the orchestrator",
       "description": "Integrate feedback collection into existing decision points in the orchestrator. Add hooks in task execution, evaluation, and review processes to collect structured feedback.",
-      "status": "done",
+      "status": "pending",
       "dependencies": [],
       "priority": "medium",
       "subtasks": [],
@@ -376,7 +378,7 @@
       "id": 18,
       "title": "Implement actual Feedback Analysis Module with complete functionality",
       "description": "Create a fully functional feedback analysis module with data structures, analysis algorithms, and orchestrator integration",
-      "status": "done",
+      "status": "pending",
       "dependencies": [
         7
       ],
@@ -392,7 +394,7 @@
       "id": 19,
       "title": "Implement Feedback Collection in release_worker()",
       "description": "Add feedback collection to worker allocation release_worker() method to capture task completion feedback",
-      "status": "done",
+      "status": "pending",
       "dependencies": [],
       "priority": "high",
       "details": "Modify the release_worker() method in dynamic_worker_allocation.py to:\n- Accept feedback parameter with quality metrics, issues, suggestions\n- Store feedback with allocation history\n- Update worker performance metrics with feedback data\n- Ensure backward compatibility",
@@ -409,7 +411,7 @@
       "id": 20,
       "title": "Create Feedback Data Model for Worker Allocation",
       "description": "Define structured feedback model specific to worker allocation performance",
-      "status": "done",
+      "status": "pending",
       "dependencies": [],
       "priority": "high",
       "details": "Create data classes/models for:\n- Task completion feedback (quality score, issues encountered)\n- Worker performance feedback\n- Allocation effectiveness metrics\n- Integration with existing WorkerPerformance tracking",
@@ -589,6 +591,7 @@
       "priority": "high",
       "subtasks": [],
       "createdAt": "2025-07-04T10:39:59.920718",
+      "updatedAt": "2025-07-04T15:44:01.196795",
       "tags": [
         "rollback",
         "implementation"
@@ -617,6 +620,7 @@
       "priority": "medium",
       "subtasks": [],
       "createdAt": "2025-07-04T10:39:59.922231",
+      "updatedAt": "2025-07-04T17:13:07.565457",
       "tags": [
         "rollback",
         "implementation"
@@ -626,7 +630,7 @@
       "id": 29,
       "title": "Implement rollback mechanism unit tests",
       "description": "Create comprehensive unit tests for the rollback mechanism including tests for successful rollbacks, partial rollbacks, and rollback failures",
-      "status": "done",
+      "status": "pending",
       "dependencies": [],
       "priority": "high",
       "details": "Create unit tests that cover:\n- Basic rollback functionality\n- Rollback with dependencies\n- Partial rollback scenarios\n- Rollback failure handling\n- State persistence during rollback\n- Rollback event notifications",
@@ -669,7 +673,7 @@
       "testStrategy": "",
       "subtasks": [],
       "createdAt": "2025-07-04T10:41:27.975058",
-      "updatedAt": "2025-07-04T10:41:27.975058",
+      "updatedAt": "2025-07-04T15:44:01.221127",
       "tags": [
         "rollback",
         "testing",
@@ -698,7 +702,7 @@
       "id": "d1298d44-86b7-4373-aa31-750532fa273e",
       "title": "Implement full rollback strategy for the Claude Code Orchestrator: Design and implement a complete r...",
       "description": "Implement full rollback strategy for the Claude Code Orchestrator: Design and implement a complete rollback mechanism that can revert all task executions, state changes, and outputs to a previous checkpoint. Include transaction boundaries, state snapshots, and recovery procedures. The implementation should handle: 1) Complete system state reversion, 2) Task execution history rollback, 3) File system changes reversion, 4) Database/persistent state rollback",
-      "status": "done",
+      "status": "pending",
       "dependencies": [],
       "priority": "high",
       "subtasks": [],
@@ -723,7 +727,7 @@
       "id": "3ffa4275-0fe8-4629-b7d0-1412cd7ebe24",
       "title": "Implement selective task rollback strategy: Create a mechanism to rollback individual task execution...",
       "description": "Implement selective task rollback strategy: Create a mechanism to rollback individual task executions based on criteria like task ID, time range, or task type. Include: 1) Task dependency graph analysis, 2) Cascading rollback detection, 3) Orphaned state cleanup, 4) Rollback validation and verification",
-      "status": "done",
+      "status": "pending",
       "dependencies": [
         "d1298d44-86b7-4373-aa31-750532fa273e"
       ],
@@ -737,7 +741,7 @@
       "id": "3fb4c8c4-7c20-4dcc-ab7b-25f560bb5eba",
       "title": "Create rollback strategy integration tests: Develop comprehensive test suite for all rollback strate...",
       "description": "Create rollback strategy integration tests: Develop comprehensive test suite for all rollback strategies including: 1) Full system rollback scenarios, 2) Partial rollback with various component combinations, 3) Selective task rollback with complex dependencies, 4) Rollback failure recovery, 5) Performance testing for large-scale rollbacks",
-      "status": "done",
+      "status": "pending",
       "dependencies": [
         "d1298d44-86b7-4373-aa31-750532fa273e",
         "ee0fc964-9d66-4d2a-95e5-b334dcaeb2a9",
@@ -784,6 +788,7 @@
       "priority": "high",
       "subtasks": [],
       "createdAt": "2025-07-04T11:12:32.362609",
+      "updatedAt": "2025-07-04T15:44:01.238854",
       "tags": [
         "feedback-analysis",
         "data-models",
@@ -794,7 +799,7 @@
       "id": "9307f1ce-d8b5-4690-8230-85e8e35b4f2e",
       "title": "Create feedback analysis algorithms in analysis_algorithms.py including: 1) Sentiment analysis for t...",
       "description": "Create feedback analysis algorithms in analysis_algorithms.py including: 1) Sentiment analysis for text feedback, 2) Statistical methods for ratings (mean, median, std dev, percentiles), 3) Trend detection over time, 4) Anomaly detection for outlier feedback, 5) Performance scoring algorithm",
-      "status": "done",
+      "status": "pending",
       "dependencies": [],
       "priority": "high",
       "subtasks": [],
@@ -830,6 +835,7 @@
       "priority": "medium",
       "subtasks": [],
       "createdAt": "2025-07-04T11:12:32.362621",
+      "updatedAt": "2025-07-04T17:13:07.595347",
       "tags": [
         "feedback-analysis",
         "testing",
@@ -855,7 +861,7 @@
       "id": "bae12d94-5eaf-49c8-8ec0-0d8989dfb371",
       "title": "Create feedback analysis documentation in docs/feedback_analysis.md covering: 1) Architecture overvi...",
       "description": "Create feedback analysis documentation in docs/feedback_analysis.md covering: 1) Architecture overview, 2) API reference for FeedbackAnalyzer class, 3) Configuration options, 4) Usage examples, 5) Algorithm explanations, 6) Integration guide with orchestrator",
-      "status": "done",
+      "status": "pending",
       "dependencies": [],
       "priority": "low",
       "subtasks": [],
@@ -868,47 +874,2253 @@
     },
     {
       "id": "fe1bd532-b40e-4628-a164-714350a89676",
-      "type": "coding",
+      "title": "Implement comprehensive rollback tests",
       "description": "Actually implement comprehensive rollback tests for the orchestrator rollback mechanism. Create test files that verify: 1) Rollback state transitions, 2) File restoration after rollback, 3) Task state recovery, 4) Error handling during rollback, 5) Edge cases like partial failures. Use pytest framework.",
       "status": "pending",
+      "dependencies": [],
       "priority": "high",
+      "subtasks": [
+        {
+          "id": "39de05a7-19b2-455c-9ee1-d1e69f46d326_subtask_1",
+          "title": "Create test_rollback_state_transitions.py to verify state changes",
+          "description": "Create test_rollback_state_transitions.py to verify state changes",
+          "status": "pending",
+          "dependencies": []
+        },
+        {
+          "id": "f4ba0b44-b611-4a5a-a6f0-d9fb93cb7c8e_subtask_2",
+          "title": "Create test_rollback_file_operations.py to verify file restoration",
+          "description": "Create test_rollback_file_operations.py to verify file restoration",
+          "status": "pending",
+          "dependencies": []
+        },
+        {
+          "id": "dee6b2a0-0550-4539-a177-f3a163f918dc_subtask_3",
+          "title": "Create test_rollback_task_recovery.py to verify task state recovery",
+          "description": "Create test_rollback_task_recovery.py to verify task state recovery",
+          "status": "pending",
+          "dependencies": []
+        },
+        {
+          "id": "05a48a4c-3dcb-4025-b522-2386d3faf9c6_subtask_4",
+          "title": "Create test_rollback_error_handling.py for error scenarios",
+          "description": "Create test_rollback_error_handling.py for error scenarios",
+          "status": "pending",
+          "dependencies": []
+        },
+        {
+          "id": "addb17a0-de91-487e-88cc-6b3585dfe7f1_subtask_5",
+          "title": "Create test_rollback_edge_cases.py for partial failures and edge cases",
+          "description": "Create test_rollback_edge_cases.py for partial failures and edge cases",
+          "status": "pending",
+          "dependencies": []
+        }
+      ],
+      "createdAt": "2025-07-04T12:24:09.592239",
+      "complexity": 4,
       "tags": [
         "testing",
         "rollback",
         "follow-up",
         "opus-manager-review"
-      ],
-      "created_at": "2025-07-04T12:24:09.592239",
-      "dependencies": [],
-      "complexity": 4,
-      "estimated_hours": 3,
-      "subtasks": [
-        {
-          "id": "39de05a7-19b2-455c-9ee1-d1e69f46d326_subtask_1",
-          "description": "Create test_rollback_state_transitions.py to verify state changes",
-          "status": "pending"
-        },
-        {
-          "id": "f4ba0b44-b611-4a5a-a6f0-d9fb93cb7c8e_subtask_2",
-          "description": "Create test_rollback_file_operations.py to verify file restoration",
-          "status": "pending"
-        },
-        {
-          "id": "dee6b2a0-0550-4539-a177-f3a163f918dc_subtask_3",
-          "description": "Create test_rollback_task_recovery.py to verify task state recovery",
-          "status": "pending"
-        },
-        {
-          "id": "05a48a4c-3dcb-4025-b522-2386d3faf9c6_subtask_4",
-          "description": "Create test_rollback_error_handling.py for error scenarios",
-          "status": "pending"
-        },
-        {
-          "id": "addb17a0-de91-487e-88cc-6b3585dfe7f1_subtask_5",
-          "description": "Create test_rollback_edge_cases.py for partial failures and edge cases",
-          "status": "pending"
-        }
       ]
+    },
+    {
+      "id": "09efd9e2-f70b-4b64-9379-bcca2b50f7b3",
+      "title": "Implement the RollbackManager class with core rollback functionality",
+      "description": "Create the RollbackManager class with methods for system state capture, storage, and restoration. Include proper error handling and logging.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Requirements:\n- Create claude_orchestrator/rollback_manager.py\n- Implement capture_state() method to snapshot current system state\n- Implement store_state() method to persist state to storage\n- Implement restore_state() method to rollback to a previous state\n- Add proper error handling and recovery mechanisms\n- Include comprehensive logging for audit trails",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:30:38.621312",
+      "updatedAt": "2025-07-04T17:13:07.619559",
+      "complexity": 4,
+      "tags": [
+        "rollback",
+        "implementation",
+        "core",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "c2254345-1bea-4b26-8d86-b4b51c985839",
+      "title": "Create actual RollbackManager integration tests with TaskMaster",
+      "description": "Implement comprehensive integration tests that verify RollbackManager works correctly with TaskMaster during various rollback scenarios",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Requirements:\n- Create tests/test_rollback_integration.py\n- Test rollback during task execution\n- Test rollback after task failure\n- Test rollback with multiple concurrent tasks\n- Test state restoration accuracy\n- Test rollback performance and resource usage\n- Verify TaskMaster state consistency after rollback",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:30:38.621329",
+      "updatedAt": "2025-07-04T15:44:01.263927",
+      "complexity": 4,
+      "tags": [
+        "testing",
+        "rollback",
+        "integration",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "98a59916-a0a3-4db2-b4bd-3e491f5a26d1",
+      "title": "Implement rollback strategies and policies",
+      "description": "Create different rollback strategies (immediate, graceful, checkpoint-based) and policies for when to trigger rollbacks",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "details": "Requirements:\n- Implement ImmediateRollbackStrategy\n- Implement GracefulRollbackStrategy\n- Implement CheckpointBasedRollbackStrategy\n- Create RollbackPolicy interface\n- Implement policy for automatic rollback on critical errors\n- Add configuration for rollback behavior",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:30:38.621338",
+      "updatedAt": "2025-07-04T12:30:38.621339",
+      "complexity": 4,
+      "tags": [
+        "rollback",
+        "strategy",
+        "architecture",
+        "followup"
+      ]
+    },
+    {
+      "id": "265606d9-f1b0-49d0-93de-6c3417f5d2df",
+      "title": "Implement feedback storage module core",
+      "description": "Create the core feedback storage module with SQLite backend for storing task feedback and reviews",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Implement FeedbackStorage class with SQLite backend, including schema creation, CRUD operations for feedback entries, and proper error handling",
+      "testStrategy": "Unit tests for all database operations, schema validation, and error cases",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:33:52.594424",
+      "updatedAt": "2025-07-04T15:44:01.282830",
+      "tags": [
+        "followup",
+        "opus-manager-review",
+        "feedback-storage"
+      ]
+    },
+    {
+      "id": "0648766b-87a7-4aff-8a36-925662156a53",
+      "title": "Create feedback storage database schema",
+      "description": "Design and implement the SQLite database schema for feedback storage",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Create tables for feedback entries, review history, task associations, and metadata. Include proper indexes and constraints",
+      "testStrategy": "Schema validation tests, constraint tests",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:33:52.594430",
+      "updatedAt": "2025-07-04T12:33:52.594431",
+      "tags": [
+        "followup",
+        "opus-manager-review",
+        "feedback-storage"
+      ]
+    },
+    {
+      "id": "93835659-273a-432a-94d7-032f31914177",
+      "title": "Write comprehensive unit tests for feedback storage",
+      "description": "Create pytest tests covering all feedback storage functionality",
+      "status": "pending",
+      "dependencies": [
+        "265606d9-f1b0-49d0-93de-6c3417f5d2df",
+        "0648766b-87a7-4aff-8a36-925662156a53"
+      ],
+      "priority": "high",
+      "details": "Write tests for: database connection management, CRUD operations, error handling, concurrent access, data validation, and edge cases",
+      "testStrategy": "Use pytest with fixtures, mock database for isolation, test coverage > 90%",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:33:52.594432",
+      "updatedAt": "2025-07-04T15:44:01.558156",
+      "tags": [
+        "followup",
+        "opus-manager-review",
+        "testing"
+      ]
+    },
+    {
+      "id": "20b724d6-a2a3-4a01-a9d6-33a16226eab4",
+      "title": "Implement feedback retrieval and query methods",
+      "description": "Add methods for querying and retrieving feedback data with filtering",
+      "status": "pending",
+      "dependencies": [
+        "265606d9-f1b0-49d0-93de-6c3417f5d2df"
+      ],
+      "priority": "medium",
+      "details": "Implement methods for: getting feedback by task ID, filtering by date range, aggregating ratings, exporting feedback data",
+      "testStrategy": "Unit tests for all query methods with various filter combinations",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:33:52.594434",
+      "updatedAt": "2025-07-04T12:33:52.594435",
+      "tags": [
+        "followup",
+        "opus-manager-review",
+        "feedback-storage"
+      ]
+    },
+    {
+      "id": "feedback-doc-comprehensive",
+      "title": "Create comprehensive documentation for feedback storage system",
+      "description": "Create complete documentation for the feedback storage system with all architectural and implementation details",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Create comprehensive documentation for the feedback storage system. The documentation should include:\n\n1. **Architecture Overview** (docs/feedback/architecture.md)\n   - System design and components\n   - Data flow diagrams\n   - Integration points with orchestrator\n\n2. **API Reference** (docs/feedback/api_reference.md)\n   - FeedbackCollector class documentation\n   - Method signatures and parameters\n   - Return types and exceptions\n   - Usage examples for each method\n\n3. **Database Schema** (docs/feedback/schema.md)\n   - Feedback data model\n   - Storage schema with field descriptions\n   - Indexes and relationships\n   - Migration guidelines\n\n4. **Integration Guide** (docs/feedback/integration_guide.md)\n   - Step-by-step integration instructions\n   - Code examples for common use cases\n   - Configuration options\n   - Best practices\n\n5. **Configuration Reference** (docs/feedback/configuration.md)\n   - All configuration options\n   - Environment variables\n   - Default values and recommendations\n\nUse the existing technical specifications from docs/task_4_feedback_integration_followup.md as a starting point.",
+      "testStrategy": "Documentation review for completeness, accuracy, and clarity",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:35:00.000000",
+      "updatedAt": "2025-07-04T17:13:07.639983",
+      "tags": [
+        "documentation",
+        "feedback-system",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 33,
+      "title": "Implement FeedbackModel with validation",
+      "description": "Create feedback_model.py with FeedbackModel dataclass including validation, serialization, and type hints",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Implementation task for feedback storage backend (Task 15 follow-up)",
+      "testStrategy": "Unit tests and integration tests",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:42:30.883366",
+      "updatedAt": "2025-07-04T12:42:30.883369",
+      "tags": [
+        "feedback-storage",
+        "implementation",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 34,
+      "title": "Create FeedbackStorageInterface",
+      "description": "Create abstract interface for feedback storage with CRUD operations and query methods",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Implementation task for feedback storage backend (Task 15 follow-up)",
+      "testStrategy": "Unit tests and integration tests",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:42:30.883374",
+      "updatedAt": "2025-07-04T15:44:01.301481",
+      "tags": [
+        "feedback-storage",
+        "interface",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 35,
+      "title": "Implement JSON file storage backend",
+      "description": "Create JSON-based storage backend with file locking, indexing, and atomic operations",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Implementation task for feedback storage backend (Task 15 follow-up)",
+      "testStrategy": "Unit tests and integration tests",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:42:30.883378",
+      "updatedAt": "2025-07-04T12:42:30.883379",
+      "tags": [
+        "feedback-storage",
+        "json-backend",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 36,
+      "title": "Implement SQLite storage backend",
+      "description": "Create SQLite storage backend with proper schema, migrations, and connection pooling",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Implementation task for feedback storage backend (Task 15 follow-up)",
+      "testStrategy": "Unit tests and integration tests",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:42:30.883381",
+      "updatedAt": "2025-07-04T12:42:30.883382",
+      "tags": [
+        "feedback-storage",
+        "sqlite-backend",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 37,
+      "title": "Create storage factory and configuration",
+      "description": "Implement factory pattern for storage backend selection and configuration management",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "details": "Implementation task for feedback storage backend (Task 15 follow-up)",
+      "testStrategy": "Unit tests and integration tests",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:42:30.883383",
+      "updatedAt": "2025-07-04T17:13:07.665566",
+      "tags": [
+        "feedback-storage",
+        "configuration",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 38,
+      "title": "Write comprehensive storage tests",
+      "description": "Create unit and integration tests for all storage components",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Implementation task for feedback storage backend (Task 15 follow-up)",
+      "testStrategy": "Unit tests and integration tests",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:42:30.883386",
+      "updatedAt": "2025-07-04T12:42:30.883387",
+      "tags": [
+        "feedback-storage",
+        "testing",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 39,
+      "title": "Integrate Static Analysis Tools (ruff, mypy)",
+      "description": "Integrate static analysis tools for immediate code quality feedback",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Create CodeValidator module to integrate ruff for style/linting and mypy for type checking. Provide structured feedback on code quality issues.",
+      "testStrategy": "Unit tests for analyzers, integration tests with sample code",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:50:19.622408",
+      "updatedAt": "2025-07-04T12:50:19.622413",
+      "tags": [
+        "static-analysis",
+        "feedback-loop",
+        "code-quality",
+        "anthropic-improvement"
+      ]
+    },
+    {
+      "id": 40,
+      "title": "Implement Automated Test Execution with pytest",
+      "description": "Create automated test execution system for immediate test feedback",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Build TestExecutor module with pytest integration. Capture test results, coverage changes, and failure details.",
+      "testStrategy": "Meta-tests for executor, sample test suites",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:50:19.622415",
+      "updatedAt": "2025-07-04T12:50:19.622416",
+      "tags": [
+        "test-automation",
+        "feedback-loop",
+        "quality-assurance",
+        "anthropic-improvement"
+      ]
+    },
+    {
+      "id": 41,
+      "title": "Create Secure Sandbox Execution Environment",
+      "description": "Build sandboxed environment for safe code execution",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Implement SandboxExecutor with Docker. Include resource limits, isolation, and result capture.",
+      "testStrategy": "Security tests, isolation verification",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:50:19.622417",
+      "updatedAt": "2025-07-04T15:44:01.322573",
+      "tags": [
+        "sandbox",
+        "security",
+        "execution-environment",
+        "anthropic-improvement"
+      ]
+    },
+    {
+      "id": 42,
+      "title": "Implement ReviewerAgent for Output Analysis",
+      "description": "Create specialized agent that critically reviews worker outputs",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "ReviewerAgent analyzes if code meets requirements, identifies edge cases, suggests improvements.",
+      "testStrategy": "Review quality metrics, edge case detection",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:50:19.622419",
+      "updatedAt": "2025-07-04T12:50:19.622420",
+      "tags": [
+        "reviewer-agent",
+        "cognitive-architecture",
+        "quality",
+        "anthropic-improvement"
+      ]
+    },
+    {
+      "id": 43,
+      "title": "Add Plan Validation Stage",
+      "description": "Implement validation before task execution",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Validate task decomposition, check dependencies, verify resources, optional human approval.",
+      "testStrategy": "Validation logic tests, plan quality metrics",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:50:19.622421",
+      "updatedAt": "2025-07-04T17:13:07.699289",
+      "tags": [
+        "plan-validation",
+        "cognitive-architecture",
+        "workflow",
+        "anthropic-improvement"
+      ]
+    },
+    {
+      "id": 44,
+      "title": "Build Active Intervention Request System",
+      "description": "Enable agents to request human help when uncertain",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Define triggers (low confidence, test failures), implement notifications, pause/resume workflow.",
+      "testStrategy": "Intervention flow tests, notification tests",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:50:19.622422",
+      "updatedAt": "2025-07-04T15:44:01.341243",
+      "tags": [
+        "human-in-loop",
+        "intervention",
+        "collaboration",
+        "anthropic-improvement"
+      ]
+    },
+    {
+      "id": 45,
+      "title": "Create Interactive Feedback Interface",
+      "description": "Build interface for real-time human feedback",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "details": "CLI/web interface for code review, inline comments, iterative refinement.",
+      "testStrategy": "UI tests, feedback flow integration",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:50:19.622424",
+      "updatedAt": "2025-07-04T12:50:19.622425",
+      "tags": [
+        "human-in-loop",
+        "feedback",
+        "interface",
+        "anthropic-improvement"
+      ]
+    },
+    {
+      "id": 46,
+      "title": "Create Specialized Agent Framework",
+      "description": "Build framework for agents with specific expertise",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "details": "Implement CodeGeneratorAgent, TestWriterAgent, RefactorAgent, DocumentationAgent, etc.",
+      "testStrategy": "Agent capability tests, specialization metrics",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:50:19.622426",
+      "updatedAt": "2025-07-04T12:50:19.622427",
+      "tags": [
+        "specialized-agents",
+        "architecture",
+        "expertise",
+        "anthropic-improvement"
+      ]
+    },
+    {
+      "id": 47,
+      "title": "Implement Dynamic Task Routing",
+      "description": "Create intelligent task-to-agent assignment system",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "details": "Build TaskRouter with classification, capability matching, load balancing.",
+      "testStrategy": "Routing accuracy tests, performance benchmarks",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:50:19.622428",
+      "updatedAt": "2025-07-04T12:50:19.622429",
+      "tags": [
+        "task-routing",
+        "dynamic-allocation",
+        "optimization",
+        "anthropic-improvement"
+      ]
+    },
+    {
+      "id": 48,
+      "title": "Implement RollbackManager core class",
+      "description": "Create RollbackManager class in claude_orchestrator/rollback_manager.py with: 1) __init__ method to initialize checkpoint directory, 2) create_checkpoint(task_id, data) method to save task state, 3) rollback_to_checkpoint(checkpoint_id) method to restore state, 4) list_checkpoints() method to show available checkpoints, 5) delete_checkpoint(checkpoint_id) method for cleanup. Include proper error handling and logging throughout.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Follow-up task created after review of incomplete RollbackManager implementation",
+      "testStrategy": "Create comprehensive unit and integration tests",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:51:28.691996",
+      "updatedAt": "2025-07-04T15:44:01.360351",
+      "tags": [
+        "rollback",
+        "implementation",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 49,
+      "title": "Integrate RollbackManager with TaskMaster",
+      "description": "Modify TaskMaster to use RollbackManager: 1) Import and initialize RollbackManager in TaskMaster.__init__, 2) Add checkpoint creation before task execution in run_worker_task, 3) Add rollback capability on task failure, 4) Update task state management to support rollback operations, 5) Ensure thread-safe checkpoint operations.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Follow-up task created after review of incomplete RollbackManager implementation",
+      "testStrategy": "Create comprehensive unit and integration tests",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:51:28.692002",
+      "updatedAt": "2025-07-04T17:13:07.726483",
+      "tags": [
+        "rollback",
+        "implementation",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 50,
+      "title": "Add CLI commands for rollback operations",
+      "description": "Add new CLI commands to main.py: 1) 'co checkpoint list' - List all checkpoints, 2) 'co checkpoint create <task_id>' - Manually create checkpoint, 3) 'co checkpoint rollback <checkpoint_id>' - Rollback to checkpoint, 4) 'co checkpoint delete <checkpoint_id>' - Delete checkpoint. Update argument parser and command handling.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "details": "Follow-up task created after review of incomplete RollbackManager implementation",
+      "testStrategy": "Create comprehensive unit and integration tests",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:51:28.692005",
+      "updatedAt": "2025-07-04T12:51:28.692006",
+      "tags": [
+        "rollback",
+        "implementation",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 51,
+      "title": "Update configuration for rollback settings",
+      "description": "Add rollback configuration to orchestrator_config.json: 1) checkpoint_dir: Directory to store checkpoints, 2) auto_checkpoint: Enable/disable automatic checkpointing, 3) checkpoint_retention_days: How long to keep checkpoints, 4) max_checkpoints_per_task: Limit checkpoints per task. Update ConfigManager to handle these settings.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "details": "Follow-up task created after review of incomplete RollbackManager implementation",
+      "testStrategy": "Create comprehensive unit and integration tests",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:51:28.692007",
+      "updatedAt": "2025-07-04T12:51:28.692008",
+      "tags": [
+        "rollback",
+        "implementation",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 52,
+      "title": "Create comprehensive tests for RollbackManager",
+      "description": "Create test suite in tests/test_rollback_manager.py: 1) Test checkpoint creation and storage, 2) Test rollback functionality, 3) Test checkpoint listing and deletion, 4) Test error handling for invalid operations, 5) Test thread safety and concurrent operations, 6) Integration tests with TaskMaster.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Follow-up task created after review of incomplete RollbackManager implementation",
+      "testStrategy": "Create comprehensive unit and integration tests",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:51:28.692010",
+      "updatedAt": "2025-07-04T15:44:01.376635",
+      "tags": [
+        "rollback",
+        "implementation",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 53,
+      "title": "Implement rollback test fixtures - MockRollbackState and factories",
+      "description": "Create tests/fixtures/rollback_fixtures.py with MockRollbackState class, create_rollback_scenario() factory function, and sample rollback states (successful, failed, partial)",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "1. Create tests/fixtures/rollback_fixtures.py\n2. Implement MockRollbackState class with:\n   - state_before: dict\n   - state_after: dict\n   - rollback_type: str (full, partial, checkpoint)\n   - success_probability: float\n3. Create create_rollback_scenario() factory function\n4. Add sample states: successful_rollback, failed_rollback, partial_rollback\n5. Include test data generators for different rollback scenarios",
+      "testStrategy": "Unit tests to verify fixture creation and mock behavior",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:54:42.075865",
+      "updatedAt": "2025-07-04T12:54:42.075870",
+      "tags": [
+        "opus-manager-review",
+        "rollback",
+        "testing",
+        "fixtures"
+      ]
+    },
+    {
+      "id": 54,
+      "title": "Implement rollback test mocks - Mock services and handlers",
+      "description": "Create tests/mocks/rollback_mocks.py with mock services for testing rollback functionality",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "1. Create tests/mocks/rollback_mocks.py\n2. Implement MockRollbackManager with configurable behavior\n3. Create MockTaskExecutor with rollback simulation\n4. Add MockStateStore for state persistence testing\n5. Include MockCheckpointHandler for checkpoint testing\n6. Add utilities for simulating rollback failures and edge cases",
+      "testStrategy": "Test mocks with different failure scenarios and configurations",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:54:42.075872",
+      "updatedAt": "2025-07-04T15:44:01.395186",
+      "tags": [
+        "opus-manager-review",
+        "rollback",
+        "testing",
+        "mocks"
+      ]
+    },
+    {
+      "id": 55,
+      "title": "Create rollback integration test helpers",
+      "description": "Develop helper functions and utilities for rollback integration testing",
+      "status": "pending",
+      "dependencies": [
+        53,
+        54
+      ],
+      "priority": "medium",
+      "details": "1. Create tests/helpers/rollback_test_helpers.py\n2. Implement setup_rollback_test_environment()\n3. Add assert_rollback_successful() and assert_rollback_failed()\n4. Create capture_rollback_events() context manager\n5. Add rollback scenario builders and validators\n6. Include performance measurement utilities for rollback operations",
+      "testStrategy": "Integration tests using the helpers to verify end-to-end rollback scenarios",
+      "subtasks": [],
+      "createdAt": "2025-07-04T12:54:42.075874",
+      "updatedAt": "2025-07-04T12:54:42.075875",
+      "tags": [
+        "opus-manager-review",
+        "rollback",
+        "testing",
+        "integration"
+      ]
+    },
+    {
+      "id": "a64f2667-93eb-4f4d-adac-8818f89d04d7",
+      "title": "Create tests/test_feedback_analysis.py with basic structure and imports",
+      "description": "Create the test file tests/test_feedback_analysis.py with:\n1. Proper imports (unittest, mock, sys, os)\n2. Test class structure for FeedbackAnalyzer\n3. setUp and tearDown methods\n4. Basic test method stubs for all required functionality",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:02:02.816697",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "followup"
+      ]
+    },
+    {
+      "id": "107a828f-8ecb-4fdb-b917-1db7d9b9f356",
+      "title": "Implement comprehensive unit tests for FeedbackAnalyzer methods",
+      "description": "In tests/test_feedback_analysis.py, implement tests for:\n1. test_init - Test FeedbackAnalyzer initialization\n2. test_analyze_task_feedback - Test feedback analysis logic\n3. test_generate_improvement_suggestions - Test suggestion generation\n4. test_prioritize_feedback - Test feedback prioritization\n5. test_aggregate_feedback - Test feedback aggregation across tasks",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:02:02.818226",
+      "updatedAt": "2025-07-04T17:13:07.753750",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "followup"
+      ]
+    },
+    {
+      "id": "f2f3d11f-9e30-4831-b296-869959e6b343",
+      "title": "Add data model validation tests for feedback analysis",
+      "description": "Add tests in tests/test_feedback_analysis.py for:\n1. test_feedback_data_validation - Validate feedback data structure\n2. test_invalid_feedback_handling - Test handling of malformed data\n3. test_feedback_schema_compliance - Ensure data follows expected schema\n4. test_data_type_conversions - Test type conversions and transformations",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:02:02.819639",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "validation",
+        "followup"
+      ]
+    },
+    {
+      "id": "e44c3dd1-8730-48dc-8b66-5ed8f76a1be1",
+      "title": "Create algorithm accuracy tests for feedback analysis",
+      "description": "Implement accuracy tests in tests/test_feedback_analysis.py:\n1. test_sentiment_analysis_accuracy - Test sentiment detection accuracy\n2. test_category_classification - Test feedback categorization\n3. test_priority_scoring - Test priority calculation algorithms\n4. test_confidence_scores - Test confidence level calculations\n5. Include sample test data with known expected outputs",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:02:02.820821",
+      "updatedAt": "2025-07-04T15:44:01.413928",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "algorithms",
+        "followup"
+      ]
+    },
+    {
+      "id": "07053941-7c57-4b90-a5ba-d972834cd417",
+      "title": "Implement edge case and error handling tests",
+      "description": "Add edge case tests in tests/test_feedback_analysis.py:\n1. test_empty_feedback - Handle empty feedback data\n2. test_null_values - Handle None/null values gracefully\n3. test_large_feedback_sets - Test with large data volumes\n4. test_unicode_handling - Test special characters and unicode\n5. test_concurrent_analysis - Test thread safety if applicable\n6. test_memory_efficiency - Ensure no memory leaks",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:02:02.822002",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "error-handling",
+        "followup"
+      ]
+    },
+    {
+      "id": "ae519a26-b588-43bb-9d7a-1059be703449",
+      "title": "Create integration tests with mocked orchestrator components",
+      "description": "Add integration tests in tests/test_feedback_analysis.py:\n1. Mock orchestrator interfaces and dependencies\n2. test_orchestrator_feedback_flow - Test full feedback flow\n3. test_task_completion_feedback - Test feedback on task completion\n4. test_feedback_persistence - Test feedback storage/retrieval\n5. test_feedback_reporting - Test report generation\nUse unittest.mock for all orchestrator dependencies",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:02:02.823228",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "integration",
+        "followup"
+      ]
+    },
+    {
+      "id": "2f7cfbf7-131f-4755-9183-942faf02af3a",
+      "title": "Add performance benchmark tests for feedback analysis",
+      "description": "Create performance tests in tests/test_feedback_analysis.py:\n1. test_analysis_speed - Benchmark analysis speed\n2. test_memory_usage - Monitor memory consumption\n3. test_scalability - Test with increasing data sizes\n4. test_response_times - Measure operation latencies\n5. Create performance baseline metrics\nUse time.perf_counter() and memory_profiler if available",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "low",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:02:02.824559",
+      "updatedAt": "2025-07-04T17:13:07.778317",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "performance",
+        "followup"
+      ]
+    },
+    {
+      "id": 96,
+      "title": "Implement 'analyze-feedback <task-id>' CLI command in main.py to analyze specifi...",
+      "description": "Implement 'analyze-feedback <task-id>' CLI command in main.py to analyze specific task feedback with detailed metrics and insights. The command should parse task ID argument, fetch task data from .taskmaster/tasks/tasks.json, analyze feedback if present, and display comprehensive metrics.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:06:24.140837",
+      "updatedAt": "2025-07-04T15:44:01.431694",
+      "tags": [
+        "cli",
+        "feedback",
+        "analysis",
+        "followup"
+      ]
+    },
+    {
+      "id": 97,
+      "title": "Implement 'worker-performance' CLI command in main.py to show worker performance...",
+      "description": "Implement 'worker-performance' CLI command in main.py to show worker performance metrics. The command should aggregate all task data, calculate per-worker statistics (success rate, avg completion time, task count), and display results in a formatted table.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:06:24.140846",
+      "tags": [
+        "cli",
+        "feedback",
+        "metrics",
+        "followup"
+      ]
+    },
+    {
+      "id": 98,
+      "title": "Implement 'feedback-report' CLI command in main.py for comprehensive feedback an...",
+      "description": "Implement 'feedback-report' CLI command in main.py for comprehensive feedback analysis report. The command should analyze all tasks with feedback, identify patterns and trends, generate summary statistics, and output a detailed report.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:06:24.140849",
+      "tags": [
+        "cli",
+        "feedback",
+        "report",
+        "followup"
+      ]
+    },
+    {
+      "id": 99,
+      "title": "Implement 'export-metrics' CLI command in main.py to export feedback analysis da...",
+      "description": "Implement 'export-metrics' CLI command in main.py to export feedback analysis data. The command should support multiple formats (JSON, CSV), include all relevant metrics and analysis, and save to specified output file.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:06:24.140851",
+      "tags": [
+        "cli",
+        "feedback",
+        "export",
+        "followup"
+      ]
+    },
+    {
+      "id": "0d9cfd4b-648c-4544-b02e-a71bbdea2ae8",
+      "title": "Implement the RollbackManager class with core rollback functionality",
+      "description": "Create the RollbackManager class with methods for system state capture, storage, and restoration. Include proper error handling and logging.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Requirements:\n- Create claude_orchestrator/rollback_manager.py\n- Implement capture_state() method to snapshot current system state\n- Implement store_state() method to persist state to storage\n- Implement restore_state() method to rollback to a previous state\n- Add proper error handling and recovery mechanisms\n- Include comprehensive logging for audit trails",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:08:57.519372",
+      "updatedAt": "2025-07-04T15:44:01.451844",
+      "complexity": 4,
+      "tags": [
+        "rollback",
+        "implementation",
+        "core",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "b2b908ae-9dcd-4c22-8e3a-26c1f2bbb1d7",
+      "title": "Create actual RollbackManager integration tests with TaskMaster",
+      "description": "Implement comprehensive integration tests that verify RollbackManager works correctly with TaskMaster during various rollback scenarios",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Requirements:\n- Create tests/test_rollback_integration.py\n- Test rollback during task execution\n- Test rollback after task failure\n- Test rollback with multiple concurrent tasks\n- Test state restoration accuracy\n- Test rollback performance and resource usage\n- Verify TaskMaster state consistency after rollback",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:08:57.519388",
+      "updatedAt": "2025-07-04T17:13:07.801942",
+      "complexity": 4,
+      "tags": [
+        "testing",
+        "rollback",
+        "integration",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "6e4b0c82-9009-4290-88c3-2900bfcb585e",
+      "title": "Implement rollback strategies and policies",
+      "description": "Create different rollback strategies (immediate, graceful, checkpoint-based) and policies for when to trigger rollbacks",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "details": "Requirements:\n- Implement ImmediateRollbackStrategy\n- Implement GracefulRollbackStrategy\n- Implement CheckpointBasedRollbackStrategy\n- Create RollbackPolicy interface\n- Implement policy for automatic rollback on critical errors\n- Add configuration for rollback behavior",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:08:57.519397",
+      "updatedAt": "2025-07-04T13:08:57.519398",
+      "complexity": 4,
+      "tags": [
+        "rollback",
+        "strategy",
+        "architecture",
+        "followup"
+      ]
+    },
+    {
+      "id": 100,
+      "title": "Implement RollbackManager with component isolation boundaries",
+      "description": "Create a RollbackManager class that can identify and manage component boundaries for isolated rollbacks. Create RollbackManager in claude_orchestrator/rollback/manager.py with ComponentRegistry, Component interface with rollback/get_state/restore_state methods, boundary detection logic, and component isolation enforcement",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:12:13.138720",
+      "updatedAt": "2025-07-04T13:12:13.138725",
+      "tags": []
+    },
+    {
+      "id": 101,
+      "title": "Implement selective state reversion mechanism",
+      "description": "Add state tracking and selective reversion capabilities to the rollback system. Implement StateSnapshot class, StateHistory for versioned snapshots, selective reversion logic, and state diff generation for rollback verification",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:12:13.140743",
+      "updatedAt": "2025-07-04T15:44:01.473498",
+      "tags": []
+    },
+    {
+      "id": 102,
+      "title": "Implement dependency analysis for safe partial rollbacks",
+      "description": "Create dependency graph analysis to ensure safe partial rollbacks. Build DependencyGraph to model relationships, impact analysis for affected components, circular dependency detection, and safe rollback path calculation",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:12:13.142722",
+      "updatedAt": "2025-07-04T17:13:07.827883",
+      "tags": []
+    },
+    {
+      "id": 103,
+      "title": "Implement conflict resolution for shared resources",
+      "description": "Add conflict detection and resolution for partial rollbacks affecting shared resources. Create SharedResourceRegistry, conflict detection during rollback planning, resolution strategies (merge/priority-based/user-prompted), and rollback transaction support",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:12:13.144513",
+      "updatedAt": "2025-07-04T13:12:13.144515",
+      "tags": []
+    },
+    {
+      "id": 104,
+      "title": "Integrate partial rollback system and create documentation",
+      "description": "Integrate the partial rollback mechanism with the orchestrator and document usage. Hook into error handling, add CLI commands for manual rollbacks, create comprehensive documentation with examples, and add configuration options",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:12:13.146136",
+      "updatedAt": "2025-07-04T13:12:13.146138",
+      "tags": []
+    },
+    {
+      "id": 105,
+      "title": "Design Dependency Graph Structure",
+      "description": "Create data structure for representing task dependencies",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Define graph structure using adjacency list/matrix, implement core graph operations",
+      "testStrategy": "Unit tests for graph operations and edge cases",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:12:46.272196",
+      "updatedAt": "2025-07-04T15:44:01.487638",
+      "tags": []
+    },
+    {
+      "id": 106,
+      "title": "Implement RollbackManager Core",
+      "description": "Core class for managing task dependencies and rollback",
+      "status": "pending",
+      "dependencies": [
+        105
+      ],
+      "priority": "high",
+      "details": "Build RollbackManager class with dependency tracking methods",
+      "testStrategy": "Unit tests for dependency management functions",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:12:46.276847",
+      "updatedAt": "2025-07-04T13:12:46.276851",
+      "tags": []
+    },
+    {
+      "id": 107,
+      "title": "Impact Analysis Module",
+      "description": "Analyze impact of rolling back specific tasks",
+      "status": "pending",
+      "dependencies": [
+        105,
+        106
+      ],
+      "priority": "medium",
+      "details": "Create methods to determine affected downstream tasks",
+      "testStrategy": "Tests with complex dependency scenarios",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:12:46.280348",
+      "updatedAt": "2025-07-04T13:12:46.280351",
+      "tags": []
+    },
+    {
+      "id": 108,
+      "title": "Safe Rollback Execution",
+      "description": "Logic for safely executing rollbacks",
+      "status": "pending",
+      "dependencies": [
+        106,
+        107
+      ],
+      "priority": "high",
+      "details": "Implement ordered rollback execution with safety checks",
+      "testStrategy": "Integration tests for full rollback flows",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:12:46.283713",
+      "updatedAt": "2025-07-04T13:12:46.283715",
+      "tags": []
+    },
+    {
+      "id": 109,
+      "title": "Design RollbackState Database Schema",
+      "description": "Create the database schema to store rollback state and history",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Define tables for state storage, metadata, and relationship mappings",
+      "testStrategy": "Validate schema with test data and verify constraints",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:13:06.424980",
+      "updatedAt": "2025-07-04T13:13:06.425016",
+      "tags": []
+    },
+    {
+      "id": 110,
+      "title": "Implement State Serialization",
+      "description": "Create serialization mechanisms for rollback state data",
+      "status": "pending",
+      "dependencies": [
+        109
+      ],
+      "priority": "high",
+      "details": "Add serializers/deserializers with validation",
+      "testStrategy": "Unit tests with sample state data",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:13:06.429595",
+      "updatedAt": "2025-07-04T15:44:01.588454",
+      "tags": []
+    },
+    {
+      "id": 111,
+      "title": "Build State Recovery System",
+      "description": "Implement functionality to recover system state",
+      "status": "pending",
+      "dependencies": [
+        110
+      ],
+      "priority": "high",
+      "details": "Create recovery handlers and validation logic",
+      "testStrategy": "Test recovery from various failure scenarios",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:13:06.432860",
+      "updatedAt": "2025-07-04T13:13:06.432864",
+      "tags": []
+    },
+    {
+      "id": 112,
+      "title": "Add Rollback History Tracking",
+      "description": "Implement system to track rollback operations history",
+      "status": "pending",
+      "dependencies": [
+        109,
+        110
+      ],
+      "priority": "medium",
+      "details": "Track timestamps, states, and metadata for rollbacks",
+      "testStrategy": "Verify history accuracy with test rollbacks",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:13:06.435831",
+      "updatedAt": "2025-07-04T15:44:01.607685",
+      "tags": []
+    },
+    {
+      "id": 113,
+      "title": "Implement Rollback-of-Rollback",
+      "description": "Add capability to rollback previous rollback operations",
+      "status": "pending",
+      "dependencies": [
+        111,
+        112
+      ],
+      "priority": "medium",
+      "details": "Create rollback reversal logic with validation",
+      "testStrategy": "Test nested rollback scenarios",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:13:06.438733",
+      "updatedAt": "2025-07-04T13:13:06.438735",
+      "tags": []
+    },
+    {
+      "id": 114,
+      "title": "Integration Testing",
+      "description": "Comprehensive testing of the entire rollback system",
+      "status": "pending",
+      "dependencies": [
+        109,
+        110,
+        111,
+        112,
+        113
+      ],
+      "priority": "medium",
+      "details": "End-to-end test scenarios and edge cases",
+      "testStrategy": "Integration test suite with various rollback patterns",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:13:06.441461",
+      "updatedAt": "2025-07-04T15:44:01.634763",
+      "tags": []
+    },
+    {
+      "id": 115,
+      "title": "Orphaned Resource Detection System",
+      "description": "Create a system to detect resources left in an inconsistent state after failed rollbacks",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Implement detection logic that scans for resources without valid parent references or in incomplete states",
+      "testStrategy": "Unit tests with mock resources in various orphaned states",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:13:26.996283",
+      "updatedAt": "2025-07-04T17:13:07.854069",
+      "tags": []
+    },
+    {
+      "id": 116,
+      "title": "Resource Cleanup Strategy Implementation",
+      "description": "Develop cleanup strategies for different types of orphaned resources",
+      "status": "pending",
+      "dependencies": [
+        115
+      ],
+      "priority": "high",
+      "details": "Create handlers for each resource type with appropriate cleanup actions",
+      "testStrategy": "Test each cleanup handler with different resource states",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:13:27.000564",
+      "updatedAt": "2025-07-04T13:13:27.000567",
+      "tags": []
+    },
+    {
+      "id": 117,
+      "title": "Cleanup Verification System",
+      "description": "Implement verification logic to confirm successful cleanup operations",
+      "status": "pending",
+      "dependencies": [
+        116
+      ],
+      "priority": "medium",
+      "details": "Add verification checks to ensure resources are properly cleaned up",
+      "testStrategy": "Integration tests verifying complete cleanup process",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:13:27.003724",
+      "updatedAt": "2025-07-04T13:13:27.003726",
+      "tags": []
+    },
+    {
+      "id": 118,
+      "title": "Integration Testing Suite",
+      "description": "Create comprehensive integration tests for the entire cleanup mechanism",
+      "status": "pending",
+      "dependencies": [
+        115,
+        116,
+        117
+      ],
+      "priority": "medium",
+      "details": "Develop end-to-end tests covering detection, cleanup, and verification",
+      "testStrategy": "End-to-end tests with various failure scenarios",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:13:27.006822",
+      "updatedAt": "2025-07-04T15:44:01.624272",
+      "tags": []
+    },
+    {
+      "id": 48,
+      "title": "Enhance Review Application System",
+      "description": "Improve the review application system to handle complex code changes and validate applications",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Enhance the ReviewApplier to:\n1. Support more code change patterns:\n   - Multi-file changes\n   - Import additions/removals\n   - Class/function refactoring\n   - Test file updates\n2. Validate changes after application:\n   - Run syntax checking\n   - Execute affected tests\n   - Check for breaking changes\n3. Create rollback capability:\n   - Save original state before changes\n   - Allow reverting if issues detected\n4. Better pattern matching:\n   - Handle different code block formats\n   - Support partial code snippets\n   - Fuzzy matching for code location\n5. Integration improvements:\n   - Queue for re-review if major changes\n   - Batch multiple review applications\n   - Track review application metrics",
+      "testStrategy": "Unit tests for pattern matching, integration tests for application flow",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:33:09.457824",
+      "updatedAt": "2025-07-04T13:33:09.457828",
+      "tags": [
+        "review-application",
+        "feedback-loop",
+        "code-quality",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 119,
+      "title": "CRITICAL: Implement actual RollbackManager class in claude_orchestrator/rollback.py with all methods...",
+      "description": "CRITICAL: Implement actual RollbackManager class in claude_orchestrator/rollback.py with all methods: create_checkpoint(), list_checkpoints(), restore_checkpoint(), delete_checkpoint(), validate_checkpoint(). Include JSON serialization, versioning, and error handling. Previous attempt failed - must create actual code.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Tags: opus-manager-review, critical, implementation, rollback\n\nThis is a critical follow-up task from Opus Manager review. Previous implementation attempts failed to create actual code.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:37:39.552084",
+      "updatedAt": "2025-07-04T13:37:39.552089",
+      "tags": []
+    },
+    {
+      "id": 120,
+      "title": "CRITICAL: Create comprehensive unit tests for RollbackManager in tests/test_rollback.py. Must create...",
+      "description": "CRITICAL: Create comprehensive unit tests for RollbackManager in tests/test_rollback.py. Must create actual test file with pytest tests covering all methods, error cases, and edge conditions. Previous attempt failed.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Tags: opus-manager-review, critical, testing, rollback\n\nThis is a critical follow-up task from Opus Manager review. Previous implementation attempts failed to create actual code.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:37:39.554066",
+      "updatedAt": "2025-07-04T15:44:01.502435",
+      "tags": []
+    },
+    {
+      "id": 121,
+      "title": "CRITICAL: Create rollback integration tests in tests/test_rollback_integration.py testing RollbackMa...",
+      "description": "CRITICAL: Create rollback integration tests in tests/test_rollback_integration.py testing RollbackManager with TaskMaster. Must create actual test file. Previous attempt failed.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Tags: opus-manager-review, critical, testing, rollback, integration\n\nThis is a critical follow-up task from Opus Manager review. Previous implementation attempts failed to create actual code.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:37:39.555940",
+      "updatedAt": "2025-07-04T13:37:39.555941",
+      "tags": []
+    },
+    {
+      "id": 122,
+      "title": "CRITICAL: Implement FeedbackAnalyzer class in claude_orchestrator/feedback_analysis.py with methods:...",
+      "description": "CRITICAL: Implement FeedbackAnalyzer class in claude_orchestrator/feedback_analysis.py with methods: analyze_task_feedback(), calculate_feedback_metrics(), generate_insights(), aggregate_worker_performance(). Must create actual code file. Previous attempt failed.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Tags: opus-manager-review, critical, implementation, feedback\n\nThis is a critical follow-up task from Opus Manager review. Previous implementation attempts failed to create actual code.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:37:39.558075",
+      "updatedAt": "2025-07-04T17:13:07.879114",
+      "tags": []
+    },
+    {
+      "id": 123,
+      "title": "CRITICAL: Create feedback data models in claude_orchestrator/feedback_models.py including FeedbackEn...",
+      "description": "CRITICAL: Create feedback data models in claude_orchestrator/feedback_models.py including FeedbackEntry, FeedbackMetrics, WorkerPerformance dataclasses. Must create actual code file. Previous attempt failed.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Tags: opus-manager-review, critical, implementation, feedback, models\n\nThis is a critical follow-up task from Opus Manager review. Previous implementation attempts failed to create actual code.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:37:39.560266",
+      "updatedAt": "2025-07-04T15:44:01.520647",
+      "tags": []
+    },
+    {
+      "id": 124,
+      "title": "CRITICAL: Implement feedback storage backend in claude_orchestrator/feedback_storage.py with SQLite ...",
+      "description": "CRITICAL: Implement feedback storage backend in claude_orchestrator/feedback_storage.py with SQLite integration. Must create actual code with database operations. Previous attempt failed.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Tags: opus-manager-review, critical, implementation, feedback, storage\n\nThis is a critical follow-up task from Opus Manager review. Previous implementation attempts failed to create actual code.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:37:39.562102",
+      "updatedAt": "2025-07-04T13:37:39.562103",
+      "tags": []
+    },
+    {
+      "id": 125,
+      "title": "CRITICAL: Create comprehensive unit tests for feedback system in tests/test_feedback_analysis.py. Mu...",
+      "description": "CRITICAL: Create comprehensive unit tests for feedback system in tests/test_feedback_analysis.py. Must create actual test file with full test coverage. Previous attempt failed.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Tags: opus-manager-review, critical, testing, feedback\n\nThis is a critical follow-up task from Opus Manager review. Previous implementation attempts failed to create actual code.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:37:39.563985",
+      "updatedAt": "2025-07-04T13:37:39.563986",
+      "tags": []
+    },
+    {
+      "id": 126,
+      "title": "CRITICAL: Integrate RollbackManager with enhanced_orchestrator.py. Add checkpoint creation before ta...",
+      "description": "CRITICAL: Integrate RollbackManager with enhanced_orchestrator.py. Add checkpoint creation before task execution and rollback on failure. Must modify actual code. Previous attempt failed.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Tags: opus-manager-review, critical, integration, rollback\n\nThis is a critical follow-up task from Opus Manager review. Previous implementation attempts failed to create actual code.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:37:39.565877",
+      "updatedAt": "2025-07-04T13:37:39.565878",
+      "tags": []
+    },
+    {
+      "id": 127,
+      "title": "CRITICAL: Integrate FeedbackAnalyzer with enhanced_orchestrator.py. Add feedback collection after ta...",
+      "description": "CRITICAL: Integrate FeedbackAnalyzer with enhanced_orchestrator.py. Add feedback collection after task completion and use insights for worker allocation. Must modify actual code. Previous attempt failed.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Tags: opus-manager-review, critical, integration, feedback\n\nThis is a critical follow-up task from Opus Manager review. Previous implementation attempts failed to create actual code.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:37:39.567730",
+      "updatedAt": "2025-07-04T15:44:01.539119",
+      "tags": []
+    },
+    {
+      "id": 128,
+      "title": "DIAGNOSTIC: Investigate why inline executor is not creating actual files. Check permissions, tool ac...",
+      "description": "DIAGNOSTIC: Investigate why inline executor is not creating actual files. Check permissions, tool access, and execution mode. Report findings and fix the issue preventing actual code implementation.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Tags: opus-manager-review, diagnostic, system-issue\n\nThis is a critical follow-up task from Opus Manager review. Previous implementation attempts failed to create actual code.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T13:37:39.569636",
+      "updatedAt": "2025-07-04T13:37:39.569637",
+      "tags": []
+    },
+    {
+      "id": 129,
+      "title": "Task: Task Request: --prompt=Implement the RollbackManager class in claude_orchestrator/rollback.py with c",
+      "description": "Task Request: --prompt=Implement the RollbackManager class in claude_orchestrator/rollback.py with core rollback functionality including checkpoint restoration, state management, and error recovery\n\nPlease analyze this task and break it down into logical, independent components that can be worked on in parallel.\n\nRequirements:\n- Identify independent components that can be worked on simultaneously\n- Create separate tasks for features that affect different files/modules\n- Only add dependencies when absolutely necessary\n- Make tasks specific and actionable\n",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T15:46:02.466434",
+      "updatedAt": "2025-07-04T17:13:07.910433",
+      "tags": []
+    },
+    {
+      "id": "44333bf1-9148-451d-a6c6-285839ba4424",
+      "title": "Implement RollbackManager class in claude_orchestrator/rollback.py",
+      "description": "Create the RollbackManager class with core rollback functionality including:\n- Checkpoint restoration methods\n- State management for rollback operations\n- Error recovery mechanisms\n- Integration with CheckpointManager\n- Support for full, partial, and selective rollbacks",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:03:56.821669",
+      "updatedAt": "2025-07-04T16:03:56.821679",
+      "complexity": "high",
+      "tags": [
+        "rollback",
+        "implementation",
+        "core-feature",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "5d6f59d6-8dfa-4f33-8193-0bd599f80256",
+      "title": "Create tests directory and test_rollback.py with comprehensive unit tests",
+      "description": "After RollbackManager is implemented:\n- Create tests directory if it doesn't exist\n- Create tests/test_rollback.py with comprehensive unit tests\n- Test all RollbackManager methods\n- Test edge cases and error scenarios\n- Test checkpoint integrity validation\n- Test rollback strategies",
+      "status": "pending",
+      "dependencies": [
+        "44333bf1-9148-451d-a6c6-285839ba4424"
+      ],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:03:56.821681",
+      "updatedAt": "2025-07-04T17:13:08.300294",
+      "complexity": "medium",
+      "tags": [
+        "testing",
+        "rollback",
+        "unit-tests",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "f7b0056a-aa80-4672-9eeb-ec30503016ef",
+      "title": "Fix worker test execution reporting false positives",
+      "description": "Investigate why the worker reported successful test execution when no tests were created. Fix the issue to prevent false positive test results.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:03:56.821683",
+      "updatedAt": "2025-07-04T16:03:56.821684",
+      "complexity": "medium",
+      "tags": [
+        "bug-fix",
+        "testing",
+        "worker",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 130,
+      "title": "Implement RollbackManager class",
+      "description": "Implement RollbackManager class that orchestrates rollback operations: 1) Integrate with existing CheckpointManager, 2) Track all system state changes during task execution, 3) Provide methods to rollback to specific checkpoints, 4) Handle transaction boundaries and atomic operations, 5) Include proper error handling and recovery procedures, 6) Support partial rollbacks and selective state restoration. Place in claude_orchestrator/rollback_manager.py",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Critical component missing from task d1298d44. The existing CheckpointManager provides foundation but needs RollbackManager for orchestration.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:07:35.275471",
+      "updatedAt": "2025-07-04T16:07:35.275476",
+      "tags": []
+    },
+    {
+      "id": 131,
+      "title": "Implement file system change tracking for rollback",
+      "description": "Create FileChangeTracker that: 1) Monitors all file operations during task execution, 2) Creates backup copies before modifications, 3) Tracks file creations, updates, and deletions, 4) Provides methods to revert file system changes, 5) Handles large files efficiently with incremental backups, 6) Integrates with RollbackManager. Place in claude_orchestrator/file_change_tracker.py",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Required for complete rollback functionality per task d1298d44 requirements.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:07:35.279131",
+      "updatedAt": "2025-07-04T17:13:07.951546",
+      "tags": []
+    },
+    {
+      "id": 132,
+      "title": "Implement task execution history rollback",
+      "description": "Create functionality to: 1) Track complete task execution history with all state changes, 2) Store task outputs and side effects, 3) Implement task execution reversal logic, 4) Handle dependencies between tasks during rollback, 5) Provide selective task rollback capabilities, 6) Integrate with main orchestrator. Update claude_orchestrator/enhanced_orchestrator.py",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Core requirement from task d1298d44 that was not implemented.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:07:35.281573",
+      "updatedAt": "2025-07-04T16:07:35.281575",
+      "tags": []
+    },
+    {
+      "id": 133,
+      "title": "Integrate rollback functionality into main orchestrator",
+      "description": "Add rollback integration: 1) Add rollback hooks to task execution lifecycle, 2) Implement automatic checkpoint creation before risky operations, 3) Add rollback trigger conditions (failures, user request, etc.), 4) Create rollback policies and configuration, 5) Add CLI commands for manual rollback operations, 6) Update error handling to support rollback on failures. Update claude_orchestrator/main.py and enhanced_orchestrator.py",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "details": "Integration layer needed to make rollback functional in the system.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:07:35.283817",
+      "updatedAt": "2025-07-04T16:07:35.283818",
+      "tags": []
+    },
+    {
+      "id": 134,
+      "title": "Create comprehensive rollback test suite",
+      "description": "Create test suite for rollback functionality: 1) Unit tests for RollbackManager, 2) Integration tests for full rollback scenarios, 3) Tests for file system rollback operations, 4) Tests for task history rollback, 5) Error scenario tests (partial failures, corrupted state), 6) Performance tests for large rollback operations. Create tests/test_rollback_system.py and tests/test_rollback_integration.py",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "details": "Essential for ensuring rollback reliability and preventing regressions.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:07:35.285917",
+      "updatedAt": "2025-07-04T16:07:35.285918",
+      "tags": []
+    },
+    {
+      "id": "135",
+      "title": "Implement feedback data models and schemas...",
+      "description": "Implement feedback data models and schemas. Create Python dataclasses or Pydantic models for Feedback, FeedbackMetadata, and FeedbackQuery. Include validation, serialization methods, and type hints. Place in claude_orchestrator/feedback/models.py",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:11:06.872300",
+      "updatedAt": "2025-07-04T17:13:07.977913",
+      "tags": [
+        "storage",
+        "backend",
+        "models",
+        "feedback",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "136",
+      "title": "Implement JSON file-based storage backend for feedback data...",
+      "description": "Implement JSON file-based storage backend for feedback data. Create JSONFeedbackStorage class with CRUD operations (create, read, update, delete) and query methods. Include file locking for concurrent access safety. Place in claude_orchestrator/feedback/storage/json_storage.py",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:11:06.872300",
+      "updatedAt": "2025-07-04T16:11:06.872300",
+      "tags": [
+        "storage",
+        "backend",
+        "json",
+        "feedback",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "137",
+      "title": "Create abstract base class for feedback storage backends...",
+      "description": "Create abstract base class for feedback storage backends. Define interface with abstract methods for CRUD operations and querying. This will allow easy swapping between JSON and future database implementations. Place in claude_orchestrator/feedback/storage/base.py",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:11:06.872300",
+      "updatedAt": "2025-07-04T16:11:06.872300",
+      "tags": [
+        "storage",
+        "backend",
+        "interface",
+        "feedback",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "138",
+      "title": "Implement feedback query functionality...",
+      "description": "Implement feedback query functionality. Create methods to query feedback by task_id, worker_id, timestamp range, rating, and custom criteria. Support sorting and pagination. Place query logic in claude_orchestrator/feedback/query.py",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:11:06.872300",
+      "updatedAt": "2025-07-04T16:11:06.872300",
+      "tags": [
+        "storage",
+        "query",
+        "feedback",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "139",
+      "title": "Add comprehensive error handling to feedback storage...",
+      "description": "Add comprehensive error handling to feedback storage. Create custom exceptions for storage errors, implement retry logic for file operations, and add proper logging. Place exceptions in claude_orchestrator/feedback/exceptions.py",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:11:06.872300",
+      "updatedAt": "2025-07-04T17:13:08.010630",
+      "tags": [
+        "storage",
+        "error-handling",
+        "feedback",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "140",
+      "title": "Create unit tests for feedback storage backend...",
+      "description": "Create unit tests for feedback storage backend. Test CRUD operations, concurrent access, query functionality, and error handling. Include fixtures for test data. Place in tests/test_feedback_storage.py",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:11:06.872300",
+      "updatedAt": "2025-07-04T16:11:06.872300",
+      "tags": [
+        "storage",
+        "testing",
+        "feedback",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "141",
+      "title": "Implement storage configuration system...",
+      "description": "Implement storage configuration system. Create configuration for storage paths, file formats, retention policies, and future database connection settings. Use environment variables and config files. Place in claude_orchestrator/feedback/config.py",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:11:06.872300",
+      "updatedAt": "2025-07-04T16:11:06.872300",
+      "tags": [
+        "storage",
+        "configuration",
+        "feedback",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "142",
+      "title": "Create database storage backend stub...",
+      "description": "Create database storage backend stub. Implement SQLAlchemy models and basic structure for future database integration. This should follow the same interface as JSON storage. Place in claude_orchestrator/feedback/storage/db_storage.py",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "low",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:11:06.872300",
+      "updatedAt": "2025-07-04T16:11:06.872300",
+      "tags": [
+        "storage",
+        "database",
+        "future",
+        "feedback",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 143,
+      "title": "Implement FeedbackEntry dataclass",
+      "description": "Implement FeedbackEntry dataclass with fields: id, task_id, timestamp, feedback_type, content, metadata, user_id. Include validation methods (validate_feedback_type, validate_content_length) and serialization methods (to_dict, from_dict, to_json)",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:12:28.469999",
+      "updatedAt": "2025-07-04T17:13:08.050153",
+      "tags": []
+    },
+    {
+      "id": 144,
+      "title": "Task: Task Request: --prompt=Implement FeedbackStorage class with SQLite database backend. Create a new fi",
+      "description": "Task Request: --prompt=Implement FeedbackStorage class with SQLite database backend. Create a new file claude_orchestrator/feedback_storage.py with: 1) SQLite schema for feedback table (id, task_id, feedback_type, content, rating, created_at, updated_at), 2) FeedbackStorage class with methods: create_feedback(), get_feedback_by_task(), update_feedback(), delete_feedback(), get_all_feedback(). Include proper error handling and logging.\n\nPlease analyze this task and break it down into logical, independent components that can be worked on in parallel.\n\nRequirements:\n- Identify independent components that can be worked on simultaneously\n- Create separate tasks for features that affect different files/modules\n- Only add dependencies when absolutely necessary\n- Make tasks specific and actionable\n",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:15:21.127632",
+      "updatedAt": "2025-07-04T16:15:21.127641",
+      "tags": []
+    },
+    {
+      "id": "8eced782-d21a-43a5-ab7d-4d81495df7a7",
+      "title": "Create RollbackManager class with core checkpoint functionality",
+      "description": "Implement RollbackManager in claude_orchestrator/rollback_manager.py with: 1) RollbackManager class definition, 2) create_checkpoint(task_id, metadata) method, 3) restore_checkpoint(checkpoint_id) method, 4) list_checkpoints() method, 5) delete_checkpoint(checkpoint_id) method, 6) File-based storage in .taskmaster/checkpoints/, 7) JSON serialization for checkpoint data",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:21:37.871871Z",
+      "tags": [
+        "rollback",
+        "implementation",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "d69058b0-dfc3-4695-bf10-27a61febba18",
+      "title": "Integrate RollbackManager with TaskMaster for automatic checkpoints",
+      "description": "Modify TaskMaster to integrate RollbackManager: 1) Import and initialize RollbackManager in TaskMaster.__init__, 2) Add create_checkpoint before task execution in execute_task(), 3) Add rollback_on_failure method to restore checkpoint on task failure, 4) Update task execution flow to handle checkpoint creation/restoration, 5) Add checkpoint_enabled config option",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:21:37.871882Z",
+      "tags": [
+        "rollback",
+        "integration",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "d1c94978-0ca4-4102-b4a3-d98e6211ac8e",
+      "title": "Add CLI commands for manual checkpoint operations",
+      "description": "Add checkpoint-related CLI commands to main.py: 1) 'checkpoint create <task_id>' command, 2) 'checkpoint list' command, 3) 'checkpoint restore <checkpoint_id>' command, 4) 'checkpoint delete <checkpoint_id>' command, 5) Add --no-checkpoint flag to disable checkpoint creation, 6) Update help documentation",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:21:37.871888Z",
+      "tags": [
+        "rollback",
+        "cli",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "b8447425-b399-43e9-a4c8-ec9ff48eddd4",
+      "title": "Update configuration for rollback settings",
+      "description": "Add rollback configuration options: 1) Add 'rollback' section to orchestrator_config.json, 2) Include checkpoint_enabled (bool), checkpoint_dir (str), max_checkpoints_per_task (int), auto_cleanup_days (int) settings, 3) Update ConfigManager to load rollback settings, 4) Add validation for rollback configuration",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:21:37.871893Z",
+      "updatedAt": "2025-07-04T17:13:08.083827",
+      "tags": [
+        "rollback",
+        "configuration",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": "44cf5dc6-d03f-4390-bc54-c48884d484a7",
+      "title": "Write comprehensive tests for RollbackManager",
+      "description": "Create test_rollback_manager.py with tests for: 1) Checkpoint creation and storage, 2) Checkpoint restoration, 3) Checkpoint listing and filtering, 4) Checkpoint deletion, 5) Error handling for corrupt checkpoints, 6) Integration tests with TaskMaster, 7) CLI command tests",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:21:37.871897Z",
+      "tags": [
+        "rollback",
+        "testing",
+        "followup",
+        "opus-manager-review"
+      ]
+    },
+    {
+      "id": 145,
+      "title": "Implement RollbackManager component in claude_orchestrator",
+      "description": "Create a comprehensive RollbackManager component with:\n        - Full state management and tracking\n        - Transaction logging for all operations\n        - Rollback execution capabilities\n        - Error recovery mechanisms\n        - Integration with existing task system\n        \n        Implementation should include:\n        1. RollbackManager class in claude_orchestrator/rollback_manager.py\n        2. Transaction log storage and retrieval\n        3. State snapshot capabilities\n        4. Rollback strategy patterns (full, partial, selective)\n        5. Integration with TaskMaster for task state management\n        \n        Tags: rollback, implementation, opus-manager-review, followup",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:22:35.442318",
+      "updatedAt": "2025-07-04T16:22:35.442321",
+      "tags": []
+    },
+    {
+      "id": 146,
+      "title": "Set up test infrastructure for rollback testing",
+      "description": "Create the necessary test infrastructure:\n        - Create tests/ directory structure\n        - Set up pytest configuration\n        - Create test fixtures and utilities\n        - Configure test database/storage\n        - Add test runner scripts\n        \n        Structure should include:\n        - tests/integration/test_rollback_integration.py\n        - tests/unit/test_rollback_manager.py\n        - tests/fixtures/rollback_fixtures.py\n        - tests/conftest.py for pytest configuration\n        \n        Tags: testing, infrastructure, rollback, followup",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:22:35.444858",
+      "updatedAt": "2025-07-04T16:22:35.444860",
+      "tags": []
+    },
+    {
+      "id": 147,
+      "title": "Create comprehensive rollback integration tests",
+      "description": "Implement the actual integration tests for rollback functionality:\n        \n        Test scenarios to cover:\n        1. Single task rollback\n        2. Multi-task transaction rollback\n        3. Partial rollback with dependencies\n        4. Rollback during task execution\n        5. Rollback recovery from failures\n        6. State consistency verification\n        7. Concurrent rollback operations\n        8. Rollback with worker pool coordination\n        \n        Each test should:\n        - Set up initial state\n        - Execute operations\n        - Trigger rollback\n        - Verify final state consistency\n        - Check audit logs\n        \n        Tags: testing, integration, rollback, followup",
+      "status": "pending",
+      "dependencies": [
+        145,
+        146
+      ],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:22:35.447219",
+      "updatedAt": "2025-07-04T16:22:35.447220",
+      "tags": []
+    },
+    {
+      "id": 148,
+      "title": "Add rollback CLI commands to task-master",
+      "description": "Extend task-master CLI with rollback commands:\n        - rollback-task: Rollback a specific task\n        - rollback-transaction: Rollback a transaction\n        - rollback-status: Check rollback status\n        - rollback-history: View rollback history\n        \n        Integration with existing CLI structure and help system\n        \n        Tags: cli, rollback, followup",
+      "status": "pending",
+      "dependencies": [
+        145
+      ],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:22:35.449594",
+      "updatedAt": "2025-07-04T16:22:35.449596",
+      "tags": []
+    },
+    {
+      "id": 149,
+      "title": "Implement rollback stress test suite with concurrent scenarios",
+      "description": "Implement the actual rollback stress test suite that was planned in Task 31.\n\nRequirements:\n1. Create test_rollback_stress.py in tests/stress/ directory\n2. Implement concurrent rollback scenarios:\n   - Multiple workers performing rollbacks simultaneously\n   - Race conditions between rollback and new task execution\n   - Rollback during checkpoint creation\n   - Cascading rollbacks across dependent tasks\n3. Use Python's asyncio and threading for concurrency testing\n4. Include proper test fixtures and cleanup\n5. Ensure tests can run in CI/CD pipeline\n\nExpected test scenarios:\n- 10+ concurrent rollback operations\n- Mixed rollback and execution operations\n- Rollback chain reactions\n- Resource contention handling",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "This is a follow-up to Task 31 which only provided planning notes. Actual implementation is needed.",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:23:35.893955",
+      "updatedAt": "2025-07-04T16:23:35.893960",
+      "tags": [
+        "rollback",
+        "testing",
+        "stress-tests",
+        "implementation"
+      ]
+    },
+    {
+      "id": 150,
+      "title": "Add performance benchmarking for rollback operations",
+      "description": "Create performance benchmarks for rollback operations to establish baseline metrics.\n\nRequirements:\n1. Create benchmark_rollback.py in tests/benchmarks/ directory\n2. Measure and record:\n   - Single rollback operation time\n   - Batch rollback performance (10, 100, 1000 operations)\n   - Memory usage during rollback\n   - Disk I/O impact\n   - Database query performance\n3. Generate performance reports in JSON and HTML formats\n4. Set up performance regression detection\n5. Create visualization of benchmark results\n\nMetrics to track:\n- Average rollback time by task complexity\n- Resource utilization (CPU, memory, I/O)\n- Rollback success rate under load\n- Queue processing throughput during rollbacks",
+      "status": "pending",
+      "dependencies": [
+        149
+      ],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:23:35.898960",
+      "updatedAt": "2025-07-04T16:23:35.898962",
+      "tags": [
+        "rollback",
+        "performance",
+        "benchmarking",
+        "metrics"
+      ]
+    },
+    {
+      "id": 151,
+      "title": "Create edge case tests for rollback failures",
+      "description": "Implement comprehensive edge case testing for rollback failure scenarios.\n\nTest cases to implement:\n1. Rollback with corrupted checkpoint data\n2. Rollback when checkpoint file is missing\n3. Rollback during system shutdown\n4. Rollback with insufficient permissions\n5. Rollback when dependent tasks are locked\n6. Network failures during distributed rollback\n7. Database connection loss during rollback\n8. Rollback of partially executed tasks\n9. Circular dependency rollback scenarios\n10. Rollback with custom resource cleanup failures\n\nRequirements:\n- Create test_rollback_edge_cases.py\n- Use pytest fixtures for failure injection\n- Mock system failures appropriately\n- Ensure proper error handling and recovery\n- Document expected vs actual behavior for each edge case",
+      "status": "pending",
+      "dependencies": [
+        149
+      ],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:23:35.904344",
+      "updatedAt": "2025-07-04T17:13:08.327577",
+      "tags": [
+        "rollback",
+        "testing",
+        "edge-cases",
+        "error-handling"
+      ]
+    },
+    {
+      "id": 152,
+      "title": "Document rollback stress test results and performance thresholds",
+      "description": "Create comprehensive documentation of stress test results and establish performance thresholds.\n\nDocumentation requirements:\n1. Create docs/rollback-stress-test-results.md with:\n   - Executive summary of test results\n   - Detailed test scenarios and outcomes\n   - Performance metrics and graphs\n   - Identified bottlenecks and limitations\n   - Recommendations for production use\n\n2. Establish performance thresholds:\n   - Maximum acceptable rollback time by task type\n   - Concurrent rollback operation limits\n   - Resource usage thresholds\n   - Error rate tolerances\n\n3. Create rollback performance dashboard mockup\n4. Document rollback best practices based on test results\n5. Create troubleshooting guide for rollback issues\n\nDeliverables:\n- Markdown documentation with embedded charts\n- Performance threshold configuration file\n- Rollback monitoring guidelines\n- Production readiness checklist",
+      "status": "pending",
+      "dependencies": [
+        149,
+        150,
+        151
+      ],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:23:35.909641",
+      "updatedAt": "2025-07-04T16:23:35.909642",
+      "tags": [
+        "rollback",
+        "documentation",
+        "performance",
+        "thresholds"
+      ]
+    },
+    {
+      "id": "c03dcf1a-1be7-473a-a2bb-518c71b8553c",
+      "title": "Create rollback test fixtures including state snapshots, test data, and helper functions for setting...",
+      "description": "Create rollback test fixtures including state snapshots, test data, and helper functions for setting up rollback test scenarios. Create the fixtures in a new tests/fixtures/rollback/ directory.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T07:24:44.629175+00:00",
+      "updatedAt": "2025-07-04T17:13:08.116591",
+      "tags": [
+        "followup",
+        "opus-manager-review",
+        "rollback",
+        "testing",
+        "fixtures"
+      ]
+    },
+    {
+      "id": "c395a0e2-0bbe-4f26-b98a-b49b1c541d65",
+      "title": "Create mock objects for rollback dependencies including mock file system operations, mock database t...",
+      "description": "Create mock objects for rollback dependencies including mock file system operations, mock database transactions, and mock API clients. Place these in tests/mocks/rollback/ directory.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T07:24:44.629280+00:00",
+      "tags": [
+        "followup",
+        "opus-manager-review",
+        "rollback",
+        "testing",
+        "mocks"
+      ]
+    },
+    {
+      "id": "888850e7-7fd1-4512-9e9c-7ecc90cc5043",
+      "title": "Create reusable test utilities and helper functions for rollback testing including setup/teardown he...",
+      "description": "Create reusable test utilities and helper functions for rollback testing including setup/teardown helpers, assertion utilities, and test data generators. Place in tests/utils/rollback/.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T07:24:44.629288+00:00",
+      "tags": [
+        "followup",
+        "opus-manager-review",
+        "rollback",
+        "testing",
+        "utilities"
+      ]
+    },
+    {
+      "id": "8af66975-7646-4ea2-b40e-9f06a15b9719",
+      "title": "Create comprehensive documentation for the rollback test fixtures and mocks, including usage example...",
+      "description": "Create comprehensive documentation for the rollback test fixtures and mocks, including usage examples, API reference, and best practices. Place in docs/testing/rollback_testing_guide.md.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T07:24:44.629294+00:00",
+      "tags": [
+        "followup",
+        "opus-manager-review",
+        "rollback",
+        "testing",
+        "documentation"
+      ]
+    },
+    {
+      "id": "be5cbbad-9024-4b01-9f39-08208f672784",
+      "title": "Create tests/test_feedback_analysis.py with basic structure and imports",
+      "description": "Create the test file tests/test_feedback_analysis.py with:\n1. Proper imports (unittest, mock, sys, os)\n2. Test class structure for FeedbackAnalyzer\n3. setUp and tearDown methods\n4. Basic test method stubs for all required functionality",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:27:11.126086",
+      "updatedAt": "2025-07-04T17:13:08.149149",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "followup"
+      ]
+    },
+    {
+      "id": "f43f21a4-7795-41ea-98b5-999125939e24",
+      "title": "Implement comprehensive unit tests for FeedbackAnalyzer methods",
+      "description": "In tests/test_feedback_analysis.py, implement tests for:\n1. test_init - Test FeedbackAnalyzer initialization\n2. test_analyze_task_feedback - Test feedback analysis logic\n3. test_generate_improvement_suggestions - Test suggestion generation\n4. test_prioritize_feedback - Test feedback prioritization\n5. test_aggregate_feedback - Test feedback aggregation across tasks",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:27:11.129098",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "followup"
+      ]
+    },
+    {
+      "id": "c18009ee-7cd2-471a-bd0f-66f6ce35519b",
+      "title": "Add data model validation tests for feedback analysis",
+      "description": "Add tests in tests/test_feedback_analysis.py for:\n1. test_feedback_data_validation - Validate feedback data structure\n2. test_invalid_feedback_handling - Test handling of malformed data\n3. test_feedback_schema_compliance - Ensure data follows expected schema\n4. test_data_type_conversions - Test type conversions and transformations",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:27:11.131429",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "validation",
+        "followup"
+      ]
+    },
+    {
+      "id": "8facc85d-c028-4dd8-a4d6-954708176189",
+      "title": "Create algorithm accuracy tests for feedback analysis",
+      "description": "Implement accuracy tests in tests/test_feedback_analysis.py:\n1. test_sentiment_analysis_accuracy - Test sentiment detection accuracy\n2. test_category_classification - Test feedback categorization\n3. test_priority_scoring - Test priority calculation algorithms\n4. test_confidence_scores - Test confidence level calculations\n5. Include sample test data with known expected outputs",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:27:11.133555",
+      "updatedAt": "2025-07-04T17:13:08.193597",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "algorithms",
+        "followup"
+      ]
+    },
+    {
+      "id": "0260b744-fa32-4ec8-95f2-ec1b825f037d",
+      "title": "Implement edge case and error handling tests",
+      "description": "Add edge case tests in tests/test_feedback_analysis.py:\n1. test_empty_feedback - Handle empty feedback data\n2. test_null_values - Handle None/null values gracefully\n3. test_large_feedback_sets - Test with large data volumes\n4. test_unicode_handling - Test special characters and unicode\n5. test_concurrent_analysis - Test thread safety if applicable\n6. test_memory_efficiency - Ensure no memory leaks",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:27:11.135778",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "error-handling",
+        "followup"
+      ]
+    },
+    {
+      "id": "24f31e8b-eac9-49b6-8d94-865f872d94d6",
+      "title": "Create integration tests with mocked orchestrator components",
+      "description": "Add integration tests in tests/test_feedback_analysis.py:\n1. Mock orchestrator interfaces and dependencies\n2. test_orchestrator_feedback_flow - Test full feedback flow\n3. test_task_completion_feedback - Test feedback on task completion\n4. test_feedback_persistence - Test feedback storage/retrieval\n5. test_feedback_reporting - Test report generation\nUse unittest.mock for all orchestrator dependencies",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:27:11.138313",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "integration",
+        "followup"
+      ]
+    },
+    {
+      "id": "3a68a8be-b23f-497e-b0e9-f4ae77bed41f",
+      "title": "Add performance benchmark tests for feedback analysis",
+      "description": "Create performance tests in tests/test_feedback_analysis.py:\n1. test_analysis_speed - Benchmark analysis speed\n2. test_memory_usage - Monitor memory consumption\n3. test_scalability - Test with increasing data sizes\n4. test_response_times - Measure operation latencies\n5. Create performance baseline metrics\nUse time.perf_counter() and memory_profiler if available",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "low",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:27:11.140800",
+      "tags": [
+        "testing",
+        "feedback-analysis",
+        "performance",
+        "followup"
+      ]
+    },
+    {
+      "id": 153,
+      "title": "Create FeedbackAnalyzer module",
+      "description": "Create FeedbackAnalyzer module with: 1) FeedbackAnalyzer class to analyze task performance, 2) Methods to collect feedback metrics (execution time, success rate, error patterns), 3) Worker performance tracking, 4) Feedback data storage structure, 5) Analysis methods for insights generation",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:29:29.797032",
+      "updatedAt": "2025-07-04T16:29:29.797037",
+      "tags": []
+    },
+    {
+      "id": 154,
+      "title": "Integrate FeedbackAnalyzer with main orchestrator",
+      "description": "Integrate FeedbackAnalyzer in main.py: 1) Import and initialize FeedbackAnalyzer, 2) Add feedback collection after task completion in complete_task method, 3) Store feedback data with completed tasks, 4) Add method to retrieve feedback analytics",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:29:29.800048",
+      "updatedAt": "2025-07-04T17:13:08.230506",
+      "tags": []
+    },
+    {
+      "id": 155,
+      "title": "Implement feedback-based worker allocation",
+      "description": "Enhance worker allocation with feedback: 1) Modify DynamicWorkerAllocator to accept feedback data, 2) Implement worker performance scoring based on feedback, 3) Add logic to prefer high-performing workers for similar tasks, 4) Handle worker performance degradation",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:29:29.802905",
+      "updatedAt": "2025-07-04T16:29:29.802906",
+      "tags": []
+    },
+    {
+      "id": 156,
+      "title": "Create feedback visualization and reporting",
+      "description": "Create feedback reporting system: 1) Generate worker performance reports, 2) Task success rate analytics, 3) Error pattern analysis, 4) Performance trends over time, 5) Export feedback data for analysis",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "low",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:29:29.805565",
+      "updatedAt": "2025-07-04T16:29:29.805566",
+      "tags": []
+    },
+    {
+      "id": 157,
+      "title": "Create FeedbackAnalyzer Base Class",
+      "description": "Implement base FeedbackAnalyzer class with core functionality for feedback analysis",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Create class with methods for loading/parsing feedback data, basic analysis functions, and utility methods",
+      "testStrategy": "Unit tests for data loading, parsing, and basic analysis functions",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:32:19.091294",
+      "updatedAt": "2025-07-04T16:32:19.091330",
+      "tags": []
+    },
+    {
+      "id": 158,
+      "title": "Implement analyze-feedback Command",
+      "description": "Add CLI command to analyze feedback for specific task",
+      "status": "pending",
+      "dependencies": [
+        157
+      ],
+      "priority": "high",
+      "details": "Add command to main.py that uses FeedbackAnalyzer to analyze single task feedback",
+      "testStrategy": "Integration tests with sample task feedback data",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:32:19.098921",
+      "updatedAt": "2025-07-04T16:32:19.098927",
+      "tags": []
+    },
+    {
+      "id": 159,
+      "title": "Implement worker-performance Command",
+      "description": "Add CLI command to display worker metrics",
+      "status": "pending",
+      "dependencies": [
+        157
+      ],
+      "priority": "high",
+      "details": "Add command to main.py that aggregates and displays worker performance metrics",
+      "testStrategy": "Integration tests with historical worker data",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:32:19.103938",
+      "updatedAt": "2025-07-04T17:13:08.348146",
+      "tags": []
+    },
+    {
+      "id": 160,
+      "title": "Implement feedback-report Command",
+      "description": "Add CLI command for comprehensive feedback analysis",
+      "status": "pending",
+      "dependencies": [
+        157,
+        158
+      ],
+      "priority": "medium",
+      "details": "Add command to main.py that generates detailed feedback analysis reports",
+      "testStrategy": "Integration tests with varied feedback datasets",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:32:19.108658",
+      "updatedAt": "2025-07-04T17:13:08.366365",
+      "tags": []
+    },
+    {
+      "id": 161,
+      "title": "Implement export-metrics Command",
+      "description": "Add CLI command to export analysis data",
+      "status": "pending",
+      "dependencies": [
+        157,
+        158,
+        159,
+        160
+      ],
+      "priority": "medium",
+      "details": "Add command to main.py that exports metrics in multiple formats",
+      "testStrategy": "Verify exported data format and completeness",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:32:19.113004",
+      "updatedAt": "2025-07-04T17:13:08.378641",
+      "tags": []
+    },
+    {
+      "id": 162,
+      "title": "Task: Task Request: --prompt=Implement feedback storage module with SQLite backend - Create actual Python ",
+      "description": "Task Request: --prompt=Implement feedback storage module with SQLite backend - Create actual Python module with database schema, CRUD operations for storing task feedback and reviews\n\nPlease analyze this task and break it down into logical, independent components that can be worked on in parallel.\n\nRequirements:\n- Identify independent components that can be worked on simultaneously\n- Create separate tasks for features that affect different files/modules\n- Only add dependencies when absolutely necessary\n- Make tasks specific and actionable\n",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:36:17.481007",
+      "updatedAt": "2025-07-04T17:13:08.254747",
+      "tags": []
+    },
+    {
+      "id": 163,
+      "title": "Create feedback_model.py with FeedbackModel dataclass",
+      "description": "Create feedback_model.py with FeedbackModel dataclass including: fields (id, task_id, worker_id, feedback_type, content, severity, timestamp), validation methods for all fields, to_dict() and from_dict() serialization methods, proper type hints using typing module",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:38:44.132268",
+      "updatedAt": "2025-07-04T16:38:44.132274",
+      "tags": []
+    },
+    {
+      "id": 164,
+      "title": "Add comprehensive validation to FeedbackModel",
+      "description": "Implement validation methods in FeedbackModel: validate_id() for UUID format, validate_task_id() and validate_worker_id() for positive integers, validate_feedback_type() for enum values (ERROR, WARNING, INFO, SUCCESS), validate_severity() for range 1-5, validate_timestamp() for ISO format",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:38:44.135684",
+      "updatedAt": "2025-07-04T16:38:44.135687",
+      "tags": []
+    },
+    {
+      "id": 165,
+      "title": "Create unit tests for FeedbackModel",
+      "description": "Write comprehensive unit tests in test_feedback_model.py covering: all validation methods, serialization/deserialization, edge cases, error handling, type checking. Use pytest framework and aim for 100% coverage",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:38:44.138737",
+      "updatedAt": "2025-07-04T17:13:08.276688",
+      "tags": []
+    },
+    {
+      "id": 166,
+      "title": "Integrate FeedbackModel with task execution system",
+      "description": "Update the task execution workflow to use FeedbackModel: modify claude_session_worker.py to create FeedbackModel instances, update main.py to handle feedback collection, ensure feedback is properly stored and retrievable",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "medium",
+      "subtasks": [],
+      "createdAt": "2025-07-04T16:38:44.141627",
+      "updatedAt": "2025-07-04T16:38:44.141629",
+      "tags": []
+    },
+    {
+      "id": 167,
+      "title": "Implement RollbackManager class in claude_orchestrator/rollback_manager.py",
+      "description": "Create the RollbackManager class with checkpoint creation, restoration, listing, deletion, version compatibility, and comprehensive error handling. The class should integrate with the existing CheckpointManager and provide rollback capabilities.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "\nImplementation requirements:\n1. Create claude_orchestrator/rollback_manager.py\n2. Implement RollbackManager class with methods:\n   - create_rollback_point(task_id, checkpoint_id, metadata)\n   - restore_rollback(rollback_id)\n   - list_rollbacks(task_id=None)\n   - delete_rollback(rollback_id)\n   - validate_rollback_compatibility(rollback_id)\n3. Add version tracking for compatibility\n4. Implement comprehensive error handling\n5. Add logging for all operations\n6. Ensure thread-safety\n7. Integrate with existing CheckpointManager\n",
+      "subtasks": [],
+      "createdAt": "2025-07-04T17:16:54.705580",
+      "updatedAt": "2025-07-04T17:16:54.705588",
+      "tags": []
+    },
+    {
+      "id": 168,
+      "title": "Create comprehensive unit tests for RollbackManager in tests/test_rollback.py",
+      "description": "Implement unit tests covering all RollbackManager methods, edge cases, error scenarios, and checkpoint integrity validation",
+      "status": "pending",
+      "dependencies": [
+        167
+      ],
+      "priority": "high",
+      "details": "\nTest requirements:\n1. Create tests/ directory if it doesn't exist\n2. Create tests/test_rollback.py with tests for:\n   - All RollbackManager methods\n   - Edge cases (empty rollbacks, invalid IDs, etc.)\n   - Error scenarios\n   - Concurrent access\n   - Version compatibility\n   - Checkpoint integrity validation\n3. Use pytest framework\n4. Aim for >95% code coverage\n5. Include performance tests\n6. Test integration with CheckpointManager\n",
+      "testStrategy": "Run pytest tests/test_rollback.py with coverage report",
+      "subtasks": [],
+      "createdAt": "2025-07-04T17:16:54.713128",
+      "updatedAt": "2025-07-04T17:16:54.713131",
+      "tags": []
+    },
+    {
+      "id": 169,
+      "title": "Create integration tests for RollbackManager with real task execution",
+      "description": "Implement integration tests that verify RollbackManager works correctly with actual task execution and checkpoint creation",
+      "status": "pending",
+      "dependencies": [
+        167,
+        168
+      ],
+      "priority": "medium",
+      "details": "\nIntegration test requirements:\n1. Create tests/test_rollback_integration.py\n2. Test scenarios:\n   - Full task execution with rollback points\n   - Rollback and resume scenarios\n   - Multi-step task rollbacks\n   - Rollback with worker pool integration\n   - Rollback during task failure\n3. Verify data integrity after rollback\n4. Test with different task types\n",
+      "testStrategy": "Run pytest tests/test_rollback_integration.py",
+      "subtasks": [],
+      "createdAt": "2025-07-04T17:16:54.717414",
+      "updatedAt": "2025-07-04T17:16:54.717416",
+      "tags": []
     }
   ]
 }

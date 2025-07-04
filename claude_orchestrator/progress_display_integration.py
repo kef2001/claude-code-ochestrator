@@ -44,6 +44,12 @@ class ProgressDisplay:
             self.display.render()
             time.sleep(0.1)  # 10 FPS refresh rate
     
+
+    def register_workers(self, num_workers: int):
+        """Register all workers at initialization"""
+        for i in range(num_workers):
+            self.display.register_worker(str(i))
+
     def update(self, status: str = "", force: bool = False):
         """Update the display (compatibility method)"""
         # Update queue status if provided
@@ -63,9 +69,10 @@ class ProgressDisplay:
         if not self.running:
             self.display.render()
     
-    def set_worker_task(self, worker_id: str, task_id: str, task_title: str, progress: str = ""):
+    def set_worker_task(self, worker_id, task_id: str, task_title: str, progress: str = ""):
         """Set worker task with progress"""
         # Register worker if not exists
+        worker_id = str(worker_id)  # Ensure worker_id is string
         if worker_id not in self.display.workers:
             self.display.register_worker(worker_id)
         
@@ -91,8 +98,9 @@ class ProgressDisplay:
         # Track for compatibility
         self.active_tasks[worker_id] = (task_id, task_title, progress)
     
-    def clear_worker_task(self, worker_id: str):
+    def clear_worker_task(self, worker_id):
         """Clear worker task"""
+        worker_id = str(worker_id)  # Ensure worker_id is string
         self.display.update_worker(worker_id, WorkerState.IDLE)
         if worker_id in self.active_tasks:
             del self.active_tasks[worker_id]

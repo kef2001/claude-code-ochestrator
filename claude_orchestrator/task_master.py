@@ -238,7 +238,14 @@ class TaskManager:
         """Add a new task"""
         # Find next available ID
         tasks = self.get_all_tasks()
-        next_id = max([t.id for t in tasks], default=0) + 1
+        # Handle both string and int IDs during transition
+        numeric_ids = []
+        for t in tasks:
+            if isinstance(t.id, int):
+                numeric_ids.append(t.id)
+            elif isinstance(t.id, str) and t.id.isdigit():
+                numeric_ids.append(int(t.id))
+        next_id = max(numeric_ids, default=0) + 1
         
         # Create new task
         task = Task(

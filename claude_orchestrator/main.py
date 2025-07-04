@@ -31,6 +31,7 @@ from datetime import timedelta
 # Import native Task Master
 from .task_master import TaskManager, Task as TMTask, TaskStatus as TMTaskStatus
 from .task_master_ai import TaskMasterAI
+from .review_applier import ReviewApplier, ReviewApplierIntegration
 
 # Import direct Claude API
 try:
@@ -680,6 +681,9 @@ class OpusManager:
     
     def __init__(self, config):
         self.config = config
+        # Add execution validation flag if not present
+        if not hasattr(self.config, 'validate_execution'):
+            self.config.validate_execution = True
         self.max_workers = config.max_workers
         self.task_master = TaskMasterInterface()
         self.task_queue: queue.Queue[WorkerTask] = queue.Queue()
@@ -787,6 +791,9 @@ class SonnetWorker:
         self.worker_id = worker_id
         self.working_dir = working_dir
         self.config = config
+        # Add execution validation flag if not present
+        if not hasattr(self.config, 'validate_execution'):
+            self.config.validate_execution = True
         self.task_master = TaskMasterInterface()
         self.session_tokens_used = 0
         self.session_start_time = time.time()
@@ -1106,6 +1113,9 @@ class ClaudeOrchestrator:
     
     def __init__(self, config, working_dir: Optional[str] = None):
         self.config = config
+        # Add execution validation flag if not present
+        if not hasattr(self.config, 'validate_execution'):
+            self.config.validate_execution = True
         self.working_dir = os.path.abspath(working_dir) if working_dir else os.getcwd()
         self.manager = OpusManager(config)
         self.workers: List[SonnetWorker] = []
@@ -1233,6 +1243,38 @@ class ClaudeOrchestrator:
                     
                     # Log the review summary
                     logger.debug(f"Opus review for task {task.task_id}:\n{review_result['review']}")
+                # Log review summary  
+                logger.debug(f"Opus review for task {task.task_id}:\n{review_result['review']}")
+                
+                # Apply review changes to code
+                if self.use_progress_display and self.progress:
+                    self.progress.log_message(f"📝 Applying review feedback for task {task.task_id}", "INFO")
+                
+                apply_result = self.review_integration.process_review_and_apply(
+                    review_result, 
+                    {'task_id': task.task_id, 'title': task.title}
+                )
+                
+                if apply_result['applied']:
+                    changes_count = len(apply_result['changes'])
+                    if self.use_progress_display and self.progress:
+                        self.progress.log_message(
+                            f"✅ Applied {changes_count} changes from review to task {task.task_id}", 
+                            "SUCCESS"
+                        )
+                    logger.info(f"Applied {changes_count} review changes to task {task.task_id}")
+                    
+                    # If significant changes were made, might need re-review
+                    if apply_result['needs_re_review'] and changes_count > 2:
+                        logger.info(f"Task {task.task_id} needs re-review after changes")
+                        # Could put back in review queue, but for now just log
+                elif apply_result['errors']:
+                    if self.use_progress_display and self.progress:
+                        self.progress.log_message(
+                            f"⚠️ Failed to apply some review changes for task {task.task_id}", 
+                            "WARNING"
+                        )
+                    logger.warning(f"Errors applying review: {apply_result['errors']}")
                 else:
                     logger.error(f"Opus review failed for task {task.task_id}: {review_result.get('error', 'Unknown error')}")
                 
@@ -1259,10 +1301,16 @@ class ClaudeOrchestrator:
                 task.assigned_worker = worker.worker_id
                 self.manager.active_tasks[task.task_id] = task
                 
+
                 # Update progress display
                 if self.use_progress_display and self.progress:
                     # Update task counts first
                     self.progress.active = len(self.manager.active_tasks)
+                    self.progress.update_totals(
+                        completed=len(self.manager.completed_tasks),
+                        active=len(self.manager.active_tasks),
+                        failed=len(self.manager.failed_tasks)
+                    )
                     
                     # Set worker task with proper formatting
                     task_display = task.title[:50] if len(task.title) > 50 else task.title
@@ -1276,12 +1324,20 @@ class ClaudeOrchestrator:
                 # Process task
                 completed_task = worker.process_task(task)
                 
+
                 # Move task to appropriate collection
                 del self.manager.active_tasks[task.task_id]
                 
                 if completed_task.status == TaskStatus.COMPLETED:
                     # First mark as completed
                     self.manager.completed_tasks[task.task_id] = completed_task
+                    
+                    # Update TaskMaster state
+                    try:
+                        self.manager.task_master.complete_task(str(task.task_id))
+                    except Exception as e:
+                        logger.debug(f"Could not update TaskMaster: {e}")
+                    
                     if self.use_progress_display and self.progress:
                         # Update counts
                         self.progress.completed += 1
@@ -1369,9 +1425,11 @@ class ClaudeOrchestrator:
         # Initialize workers based on task count
         self._initialize_workers(len(tasks))
         
+
         # Initialize progress display
         if self.use_progress_display:
             self.progress = ProgressDisplay(total_tasks=len(tasks))
+            self.progress.register_workers(len(self.workers))  # Register all workers
             self.progress.update("Starting task processing...")
         
         # Set running flag
@@ -2320,6 +2378,7 @@ Examples:
   # Orchestration
   co run                               # Run the orchestrator
   co run --workers 5                   # Run with 5 parallel workers
+  co run --id 123                      # Run only task with ID 123
   
   # Setup & Status
   co init                              # Initialize project
@@ -2346,6 +2405,9 @@ Examples:
     
     parser.add_argument('--working-dir', '-d',
                        help='Set working directory for task execution')
+    
+    parser.add_argument('--id', type=str,
+                       help='Run only a specific task by ID (e.g., --id 123)')
     
     # Add command specific arguments (using arg2 as a generic second argument)
     parser.add_argument('arg2', nargs='?',
@@ -2728,6 +2790,11 @@ Examples:
             else:
                 # Legacy config system
                 config.config["execution"]["max_workers"] = args.workers
+        
+        # Check if specific task ID is requested
+        specific_task_id = getattr(args, 'id', None)
+        if specific_task_id:
+            logger.info(f"Running only task with ID: {specific_task_id}")
         
         # Get working directory from args or config
         working_dir = getattr(args, 'working_dir', None)

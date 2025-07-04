@@ -54,16 +54,30 @@ class ClaudeSessionWorker:
             print(f"Details: {details}")
         print(f"\n{'='*60}\n")
         
-        # Here we would actually execute the task
-        # For now, we'll return a placeholder result
-        result = {
-            'success': True,
-            'task_id': task_id,
-            'output': f"Task {task_id} executed successfully in current session",
-            'usage': {
-                'tokens_used': 100  # Placeholder
+        # Execute the task using Claude API
+        try:
+            # Build the prompt for Claude
+            prompt = self._build_task_prompt(task_id, task_description, task_details)
+            
+            # Execute via Claude API
+            result = self._execute_with_claude(prompt, task_id)
+            
+            # Ensure we have a proper result
+            if not result:
+                result = {
+                    'success': False,
+                    'task_id': task_id,
+                    'output': "Failed to execute task - no response from Claude",
+                    'usage': {'tokens_used': 0}
+                }
+        except Exception as e:
+            logger.error(f"Error executing task {task_id}: {e}")
+            result = {
+                'success': False,
+                'task_id': task_id,
+                'output': f"Error: {str(e)}",
+                'usage': {'tokens_used': 0}
             }
-        }
         
         return result
 

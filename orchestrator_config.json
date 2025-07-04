@@ -10,13 +10,13 @@
     }
   },
   "execution": {
-    "max_workers": 3,
+    "max_workers": 4,
     "worker_timeout": 36000,
     "manager_timeout": 36000,
     "task_queue_timeout": 1.0,
     "default_working_dir": null,
     "max_turns": null,
-    "max_retries": 3,
+    "max_retries": 4,
     "retry_base_delay": 1.0,
     "retry_max_delay": 60.0,
     "bash_default_timeout_ms": 120000,
@@ -30,7 +30,12 @@
     "show_progress_bar": true,
     "enable_opus_review": true,
     "usage_warning_threshold": 80,
-    "check_usage_before_start": true
+    "check_usage_before_start": true,
+    "ui_mode": "enhanced",
+    "refresh_rate": 10,
+    "show_worker_table": true,
+    "show_queue_status": true,
+    "max_log_messages": 5
   },
   "claude_cli": {
     "command": "claude",
@@ -57,5 +62,15 @@
   },
   "locale": {
     "language": "en"
-  }
+  },
+  "allowed_tools": [
+    "create_file",
+    "edit_file",
+    "read_file",
+    "list_files",
+    "run_command",
+    "search_files"
+  ],
+  "use_direct_api": false,
+  "worker_model": "claude-3-5-sonnet-20241022"
 }
