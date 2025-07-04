@@ -1282,11 +1282,50 @@ class ClaudeOrchestrator:
         from .review_applier import ReviewApplierIntegration
         self.review_integration = ReviewApplierIntegration(self.working_dir)
         
+        # Initialize specialized agents and dynamic routing
+        self.agent_registry = None
+        self.agent_router = None
+        self.worker_allocator = None
+        self.task_router = None
+        
+        # We'll initialize these after workers are created since they depend on worker allocation
+        
         # Verify working directory exists
         if not os.path.exists(self.working_dir):
             raise ValueError(f"Working directory does not exist: {self.working_dir}")
         
         logger.info(f"Orchestrator initialized in {self.working_dir}")
+    
+    async def _initialize_specialized_agents(self):
+        """Initialize specialized agents and dynamic routing"""
+        try:
+            from .specialized_agents import AgentRegistry
+            from .dynamic_worker_allocation import DynamicWorkerAllocator
+            from .dynamic_task_router import create_task_router
+            from .agent_router_integration import integrate_specialized_agents
+            
+            # Create agent registry
+            self.agent_registry = AgentRegistry()
+            
+            # Create worker allocator (if not already created)
+            if not self.worker_allocator:
+                self.worker_allocator = DynamicWorkerAllocator()
+            
+            # Create task router
+            self.task_router = create_task_router(
+                allocator=self.worker_allocator,
+                feedback_storage=self.feedback_storage,
+                config=getattr(self.config, 'routing', {})
+            )
+            
+            # Integrate specialized agents
+            self.agent_router = await integrate_specialized_agents(self)
+            
+            logger.info("Specialized agents and dynamic routing initialized")
+            
+        except Exception as e:
+            logger.warning(f"Failed to initialize specialized agents: {e}")
+            # System can still work without specialized agents
     
     def _initialize_workers(self, task_count: Optional[int] = None):
         """Initialize Sonnet workers based on task count and configuration"""
@@ -1309,6 +1348,10 @@ class ClaudeOrchestrator:
             self.workers.append(worker)
         
         logger.info(f"Created {worker_count} Sonnet workers for {task_count or 'unknown'} tasks")
+        
+        # Initialize specialized agents and dynamic routing after workers are created
+        if not self.agent_router:
+            asyncio.run(self._initialize_specialized_agents())
     
     def _check_and_delegate_new_tasks(self):
         """Check for newly available tasks and delegate them"""
