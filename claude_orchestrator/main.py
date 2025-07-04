@@ -1165,7 +1165,13 @@ class ClaudeOrchestrator:
                 max_checkpoints=rollback_config.get('max_checkpoints', 50),
                 auto_checkpoint=rollback_config.get('auto_checkpoint', True)
             )
-            logger.info("Rollback system initialized")
+            # Store additional rollback settings for later use
+            self.rollback_config = {
+                'checkpoint_on_task_completion': rollback_config.get('checkpoint_on_task_completion', True),
+                'checkpoint_on_error': rollback_config.get('checkpoint_on_error', True),
+                'checkpoint_interval_minutes': rollback_config.get('checkpoint_interval_minutes', 30)
+            }
+            logger.info("Rollback system initialized with settings: %s", self.rollback_config)
         
         # Initialize review integration
         from .review_applier import ReviewApplierIntegration
@@ -1314,6 +1320,36 @@ class ClaudeOrchestrator:
         
         logger.info("Review loop stopped")
     
+    def periodic_checkpoint_loop(self, interval_minutes: int):
+        """Create periodic checkpoints at specified intervals"""
+        import time
+        from .rollback_manager import CheckpointType
+        
+        interval_seconds = interval_minutes * 60
+        last_checkpoint_time = time.time()
+        
+        while self.running:
+            try:
+                time.sleep(10)  # Check every 10 seconds
+                
+                current_time = time.time()
+                if current_time - last_checkpoint_time >= interval_seconds:
+                    # Create periodic checkpoint
+                    if self.rollback_manager:
+                        try:
+                            checkpoint_id = self.rollback_manager.create_checkpoint(
+                                checkpoint_type=CheckpointType.AUTOMATIC,
+                                description=f"Periodic checkpoint (interval: {interval_minutes} minutes)"
+                            )
+                            logger.info(f"Created periodic checkpoint: {checkpoint_id}")
+                            last_checkpoint_time = current_time
+                        except Exception as e:
+                            logger.error(f"Failed to create periodic checkpoint: {e}")
+                
+            except Exception as e:
+                logger.error(f"Error in periodic checkpoint loop: {e}")
+                time.sleep(60)  # Wait a minute before retrying
+    
     def worker_loop(self, worker: SonnetWorker):
         """Worker loop that processes tasks from the queue"""
         if self.use_progress_display and self.progress:
@@ -1459,6 +1495,19 @@ class ClaudeOrchestrator:
                         if error_msg:
                             self.progress.log_message(f"   Error: {error_msg}", "ERROR")
                     
+                    # Create checkpoint on error if configured
+                    if self.rollback_manager and hasattr(self, 'rollback_config') and self.rollback_config.get('checkpoint_on_error', True):
+                        try:
+                            from .rollback_manager import CheckpointType
+                            checkpoint_id = self.rollback_manager.create_checkpoint(
+                                checkpoint_type=CheckpointType.ERROR_RECOVERY,
+                                description=f"Error checkpoint for task {task.task_id}: {task.title[:50]}",
+                                include_files=[]  # Include relevant files if needed
+                            )
+                            logger.info(f"Created error checkpoint {checkpoint_id} for failed task {task.task_id}")
+                        except Exception as e:
+                            logger.error(f"Failed to create error checkpoint: {e}")
+                    
                     # Collect feedback for failed task
                     if self.feedback_storage:
                         try:
@@ -1554,6 +1603,14 @@ class ClaudeOrchestrator:
             for worker in self.workers:
                 future = self.executor.submit(self.worker_loop, worker)
                 worker_futures.append(future)
+            
+            # Start periodic checkpoint thread if configured
+            checkpoint_future = None
+            if self.rollback_manager and hasattr(self, 'rollback_config'):
+                checkpoint_interval = self.rollback_config.get('checkpoint_interval_minutes', 30)
+                if checkpoint_interval > 0:
+                    checkpoint_future = self.executor.submit(self.periodic_checkpoint_loop, checkpoint_interval)
+                    logger.info(f"Started periodic checkpoint thread (interval: {checkpoint_interval} minutes)")
             
             # Start review threads
             review_futures = []

@@ -4,6 +4,9 @@ import logging
 from typing import Dict, Any, Optional
 
 from .feedback_storage import FeedbackStorage, JSONFeedbackStorage, FeedbackStorageInterface
+from .database_storage import (
+    DatabaseFeedbackStorage, SQLiteFeedbackStorage, PostgreSQLFeedbackStorage
+)
 
 
 logger = logging.getLogger(__name__)
@@ -15,10 +18,12 @@ class StorageFactory:
     # Registry of available storage backends
     _backends = {
         'json': JSONFeedbackStorage,
+        'sqlite': SQLiteFeedbackStorage,
+        'postgresql': PostgreSQLFeedbackStorage,
+        'database': DatabaseFeedbackStorage,  # Generic database backend
         # Future backends can be added here:
-        # 'sqlite': SQLiteFeedbackStorage,
-        # 'postgresql': PostgreSQLFeedbackStorage,
         # 'mongodb': MongoDBFeedbackStorage,
+        # 'redis': RedisFeedbackStorage,
     }
     
     @classmethod
@@ -90,12 +95,25 @@ class StorageFactory:
                 'storage_path': config.get('storage_path', '.feedback')
             }
         
-        # Add configurations for other backends as they are implemented
-        # elif backend_type == 'sqlite':
-        #     return {
-        #         'db_path': config.get('db_path', '.feedback/feedback.db'),
-        #         'connection_pool_size': config.get('connection_pool_size', 5)
-        #     }
+        elif backend_type == 'sqlite':
+            return {
+                'db_path': config.get('db_path', '.feedback/feedback.db')
+            }
+        
+        elif backend_type == 'postgresql':
+            return {
+                'host': config.get('db_host', 'localhost'),
+                'port': config.get('db_port', 5432),
+                'database': config.get('db_name', 'feedback'),
+                'user': config.get('db_user', 'postgres'),
+                'password': config.get('db_password', '')
+            }
+        
+        elif backend_type == 'database':
+            return {
+                'connection_string': config.get('connection_string', 'sqlite:///.feedback/feedback.db'),
+                'table_prefix': config.get('table_prefix', 'feedback')
+            }
         
         return {}
     
