@@ -129,7 +129,8 @@ class WorkerProfile:
         
         return True
     
-    def calculate_suitability_score(self, requirements: TaskRequirements) -> float:
+    def calculate_suitability_score(self, requirements: TaskRequirements, 
+                                    feedback_analyzer=None) -> float:
         """Calculate how suitable this worker is for the task"""
         if not self.can_handle_task(requirements):
             return 0.0
@@ -152,6 +153,49 @@ class WorkerProfile:
         # Complexity efficiency - prefer workers that match task complexity
         complexity_match = self._get_complexity_match_score(requirements.complexity)
         score *= complexity_match
+        
+        # Historical feedback bonus if analyzer is available
+        if feedback_analyzer:
+            try:
+                # Get worker performance from feedback history
+                from datetime import datetime, timedelta
+                worker_perf = feedback_analyzer.get_worker_performance(
+                    self.worker_id,
+                    start_date=datetime.now() - timedelta(days=7)  # Last 7 days
+                )
+                
+                if worker_perf and worker_perf.total_tasks > 0:
+                    # Boost score based on historical success rate
+                    historical_success_rate = worker_perf.success_rate
+                    if historical_success_rate > 0.9:
+                        score *= 1.2  # 20% bonus for excellent performance
+                    elif historical_success_rate > 0.8:
+                        score *= 1.1  # 10% bonus for good performance
+                    elif historical_success_rate < 0.5:
+                        score *= 0.8  # 20% penalty for poor performance
+                    
+                    # Consider average response time for the complexity level
+                    if requirements.complexity in worker_perf.average_response_time_by_complexity:
+                        avg_time = worker_perf.average_response_time_by_complexity[requirements.complexity]
+                        expected_time = requirements.estimated_duration * 60  # Convert to seconds
+                        
+                        # Bonus for faster than expected, penalty for slower
+                        if avg_time < expected_time * 0.8:
+                            score *= 1.15  # 15% bonus for being consistently fast
+                        elif avg_time > expected_time * 1.5:
+                            score *= 0.9   # 10% penalty for being consistently slow
+                    
+                    # Consider capability-specific performance
+                    for capability in requirements.required_capabilities:
+                        cap_value = capability.value
+                        if cap_value in worker_perf.capability_scores:
+                            cap_score = worker_perf.capability_scores[cap_value]
+                            # Adjust score based on capability-specific performance
+                            score *= (0.8 + cap_score * 0.4)  # Scale from 0.8 to 1.2
+                            
+            except Exception as e:
+                # Log but don't fail scoring if feedback analysis fails
+                logger.debug(f"Failed to incorporate feedback in scoring: {e}")
         
         return score
     
@@ -404,6 +448,7 @@ class DynamicWorkerAllocator:
         self.allocation_history: List[Dict[str, Any]] = []
         self.performance_tracker: Dict[str, List[float]] = defaultdict(list)
         self._lock = threading.Lock()
+        self.feedback_storage = None  # Will be set if feedback is enabled
         
         logger.info("Dynamic worker allocator initialized")
     
@@ -442,6 +487,11 @@ class DynamicWorkerAllocator:
             
             logger.info(f"Registered worker {worker_id} with model {model_name}")
             return True
+    
+    def set_feedback_storage(self, feedback_storage):
+        """Set the feedback storage instance for collecting worker feedback"""
+        self.feedback_storage = feedback_storage
+        logger.info("Feedback storage configured for dynamic worker allocator")
     
     def _get_model_specializations(self, model_name: str) -> Dict[WorkerCapability, float]:
         """Get specialization bonuses based on model capabilities"""
@@ -504,11 +554,22 @@ class DynamicWorkerAllocator:
                     task_description, task_title
                 )
             
+            # Get feedback analyzer if available
+            feedback_analyzer = None
+            if hasattr(self, 'feedback_storage') and self.feedback_storage:
+                try:
+                    from .feedback_analyzer import FeedbackAnalyzer
+                    feedback_analyzer = FeedbackAnalyzer(self.feedback_storage)
+                except Exception as e:
+                    logger.debug(f"Failed to create feedback analyzer: {e}")
+            
             # Find available workers who can handle the task
             suitable_workers = []
             for worker in self.workers.values():
                 if worker.is_available() and worker.can_handle_task(task_requirements):
-                    suitability_score = worker.calculate_suitability_score(task_requirements)
+                    suitability_score = worker.calculate_suitability_score(
+                        task_requirements, feedback_analyzer
+                    )
                     suitable_workers.append((worker, suitability_score))
             
             if not suitable_workers:
@@ -526,7 +587,7 @@ class DynamicWorkerAllocator:
             best_worker.current_load = len(best_worker.current_tasks) / best_worker.max_concurrent_tasks
             best_worker.last_assigned = datetime.now()
             
-            # Record allocation
+            # Record allocation with feedback history
             allocation_record = {
                 "timestamp": datetime.now().isoformat(),
                 "task_id": task_id,
@@ -536,6 +597,20 @@ class DynamicWorkerAllocator:
                 "required_capabilities": [cap.value for cap in task_requirements.required_capabilities],
                 "estimated_duration": task_requirements.estimated_duration
             }
+            
+            # Add worker feedback history if available
+            if feedback_analyzer:
+                try:
+                    worker_perf = feedback_analyzer.get_worker_performance(best_worker.worker_id)
+                    if worker_perf:
+                        allocation_record["worker_historical_performance"] = {
+                            "success_rate": worker_perf.success_rate,
+                            "average_response_time": worker_perf.average_response_time,
+                            "total_tasks": worker_perf.total_tasks
+                        }
+                except Exception as e:
+                    logger.debug(f"Failed to add worker performance to allocation record: {e}")
+            
             self.allocation_history.append(allocation_record)
             
             logger.info(f"Allocated worker {best_worker.worker_id} to task {task_id} "
@@ -598,6 +673,59 @@ class DynamicWorkerAllocator:
                 worker.performance_score = min(worker.performance_score * 1.05, 2.0)
             elif worker.success_rate < 0.7:
                 worker.performance_score = max(worker.performance_score * 0.95, 0.5)
+            
+            # Collect feedback if feedback storage is available
+            if hasattr(self, 'feedback_storage') and self.feedback_storage:
+                try:
+                    from .feedback_model import (
+                        create_success_feedback, create_error_feedback,
+                        create_performance_feedback, FeedbackMetrics
+                    )
+                    
+                    if success:
+                        # Create performance feedback for successful task
+                        metrics = FeedbackMetrics(
+                            execution_time=actual_duration * 60 if actual_duration else None,  # Convert to seconds
+                            success_rate=worker.success_rate,
+                            quality_score=worker.performance_score
+                        )
+                        
+                        feedback = create_performance_feedback(
+                            task_id=task_id,
+                            message=f"Worker {worker_id} completed task successfully",
+                            execution_time=actual_duration * 60 if actual_duration else 0,
+                            worker_id=worker_id,
+                            tags=["worker_release", "task_completion"]
+                        )
+                        self.feedback_storage.save(feedback)
+                        
+                        # Also create success feedback
+                        success_feedback = create_success_feedback(
+                            task_id=task_id,
+                            message=f"Task completed by worker {worker_id}",
+                            metrics=metrics,
+                            worker_id=worker_id,
+                            tags=["dynamic_allocation"]
+                        )
+                        self.feedback_storage.save(success_feedback)
+                    else:
+                        # Create error feedback for failed task
+                        error_feedback = create_error_feedback(
+                            task_id=task_id,
+                            message=f"Task failed on worker {worker_id}",
+                            error_details={
+                                "worker_id": worker_id,
+                                "worker_capability": worker.capability.value,
+                                "worker_load": worker.current_load,
+                                "success_rate": worker.success_rate
+                            },
+                            worker_id=worker_id,
+                            tags=["worker_release", "task_failure"]
+                        )
+                        self.feedback_storage.save(error_feedback)
+                        
+                except Exception as e:
+                    logger.debug(f"Failed to save worker release feedback: {e}")
             
             logger.info(f"Released worker {worker_id} from task {task_id} "
                        f"(success: {success}, success_rate: {worker.success_rate:.2f})")
