@@ -63,6 +63,25 @@
   "locale": {
     "language": "en"
   },
+  "rollback": {
+    "enabled": true,
+    "checkpoint_dir": ".checkpoints",
+    "max_checkpoints": 50,
+    "auto_checkpoint": true,
+    "checkpoint_on_task_completion": true,
+    "checkpoint_on_error": true,
+    "checkpoint_interval_minutes": 30
+  },
+  "feedback": {
+    "enabled": true,
+    "storage_path": ".feedback",
+    "storage_backend": "json",
+    "cache_size": 1000,
+    "collect_metrics": true,
+    "track_performance": true,
+    "track_quality": true,
+    "export_format": "json"
+  },
   "allowed_tools": [
     "create_file",
     "edit_file",

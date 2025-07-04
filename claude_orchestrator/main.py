@@ -1142,6 +1142,32 @@ class ClaudeOrchestrator:
         # Task Master interface for subtask progress
         self.task_master = TaskMasterInterface()
         
+        # Initialize feedback and rollback systems if enabled
+        self.feedback_storage = None
+        self.feedback_analyzer = None
+        self.rollback_manager = None
+        
+        if hasattr(config, 'feedback') and config.feedback.get('enabled', True):
+            from .storage_factory import create_feedback_storage
+            from .feedback_analyzer import FeedbackAnalyzer
+            self.feedback_storage = create_feedback_storage(config.feedback)
+            self.feedback_analyzer = FeedbackAnalyzer(self.feedback_storage)
+            logger.info("Feedback system initialized")
+        
+        if hasattr(config, 'rollback') and config.rollback.get('enabled', True):
+            from .rollback_manager import RollbackManager
+            rollback_config = config.rollback
+            self.rollback_manager = RollbackManager(
+                checkpoint_dir=rollback_config.get('checkpoint_dir', '.checkpoints'),
+                max_checkpoints=rollback_config.get('max_checkpoints', 50),
+                auto_checkpoint=rollback_config.get('auto_checkpoint', True)
+            )
+            logger.info("Rollback system initialized")
+        
+        # Initialize review integration
+        from .review_applier import ReviewApplierIntegration
+        self.review_integration = ReviewApplierIntegration(self.working_dir)
+        
         # Verify working directory exists
         if not os.path.exists(self.working_dir):
             raise ValueError(f"Working directory does not exist: {self.working_dir}")
@@ -1355,6 +1381,41 @@ class ClaudeOrchestrator:
                     if self.use_progress_display and self.progress:
                         self.progress.log_message(f"📋 Task {task.task_id} submitted for Opus review", "INFO")
                     
+                    # Collect feedback for successful task
+                    if self.feedback_storage:
+                        try:
+                            from .feedback_model import create_success_feedback, FeedbackMetrics
+                            
+                            # Calculate execution time if available
+                            exec_time = getattr(completed_task, 'execution_time', None)
+                            metrics = FeedbackMetrics(
+                                execution_time=exec_time,
+                                tokens_used=getattr(completed_task, 'tokens_used', None)
+                            )
+                            
+                            feedback = create_success_feedback(
+                                task_id=str(task.task_id),
+                                message=f"Task completed successfully: {task.title}",
+                                metrics=metrics,
+                                worker_id=f"worker_{worker.worker_id}",
+                                session_id=str(id(self))
+                            )
+                            self.feedback_storage.save(feedback)
+                        except Exception as e:
+                            logger.debug(f"Failed to save task success feedback: {e}")
+                    
+                    # Create checkpoint after task completion if enabled
+                    if self.rollback_manager and self.rollback_manager.auto_checkpoint:
+                        try:
+                            from .rollback_manager import CheckpointType
+                            self.rollback_manager.update_task_state(
+                                str(task.task_id), 
+                                {"status": "completed", "title": task.title}
+                            )
+                            # This will auto-create checkpoint due to task completion
+                        except Exception as e:
+                            logger.debug(f"Failed to update rollback state: {e}")
+                    
                     # Send Slack notification for completed task
                     if self.config.notify_on_task_complete:
                         self.slack_notifier.send_task_complete(task.task_id, task.title)
@@ -1374,6 +1435,26 @@ class ClaudeOrchestrator:
                         self.progress.log_message(f"❌ Task {task.task_id} failed: {task_display}", "ERROR")
                         if error_msg:
                             self.progress.log_message(f"   Error: {error_msg}", "ERROR")
+                    
+                    # Collect feedback for failed task
+                    if self.feedback_storage:
+                        try:
+                            from .feedback_model import create_error_feedback, FeedbackSeverity
+                            
+                            error_msg = completed_task.error or "Unknown error"
+                            severity = FeedbackSeverity.CRITICAL if completed_task.error == "USAGE_LIMIT_REACHED" else FeedbackSeverity.ERROR
+                            
+                            feedback = create_error_feedback(
+                                task_id=str(task.task_id),
+                                message=f"Task failed: {task.title}",
+                                error_details={"error": error_msg, "status": "failed"},
+                                severity=severity,
+                                worker_id=f"worker_{worker.worker_id}",
+                                session_id=str(id(self))
+                            )
+                            self.feedback_storage.save(feedback)
+                        except Exception as e:
+                            logger.debug(f"Failed to save task error feedback: {e}")
                     
                     # Send Slack notification for failed task
                     if self.config.notify_on_task_failed:
@@ -2384,11 +2465,24 @@ Examples:
   co init                              # Initialize project
   co check                             # Check setup
   co status                            # Check session status
+  
+  # Feedback Analysis
+  co analyze-feedback 123              # Analyze feedback for task 123
+  co worker-performance worker1        # Show performance metrics for worker
+  co feedback-report                   # Generate comprehensive feedback report
+  co export-metrics report.json        # Export metrics to file
+  
+  # Rollback Management
+  co checkpoint "Before deployment"    # Create manual checkpoint
+  co list-checkpoints                  # List available checkpoints
+  co rollback cp_20250104_120000       # Rollback to specific checkpoint
         """
     )
     
     parser.add_argument('command', nargs='?', default='run', 
-                       choices=['run', 'add', 'parse', 'check', 'status', 'init', 'list', 'show', 'next', 'update', 'expand', 'delete'],
+                       choices=['run', 'add', 'parse', 'check', 'status', 'init', 'list', 'show', 'next', 'update', 'expand', 'delete',
+                               'analyze-feedback', 'worker-performance', 'feedback-report', 'export-metrics',
+                               'checkpoint', 'rollback', 'list-checkpoints'],
                        help='Command to execute (default: run)')
     
     parser.add_argument('--config', '-c', 
@@ -2780,6 +2874,255 @@ Examples:
             print("Please run: claude auth")
             sys.exit(1)
             
+    elif args.command == 'analyze-feedback':
+        # Analyze feedback for a specific task
+        if not args.arg2:
+            print("Error: Task ID required for analyze-feedback command")
+            print("Usage: co analyze-feedback <task_id>")
+            sys.exit(1)
+        
+        from .storage_factory import create_feedback_storage
+        from .feedback_analyzer import FeedbackAnalyzer
+        
+        # Load config to get feedback settings
+        config = create_config(args.config)
+        feedback_config = getattr(config, 'feedback', {})
+        
+        storage = create_feedback_storage(feedback_config)
+        analyzer = FeedbackAnalyzer(storage)
+        
+        print(f"\n📊 Analyzing feedback for task {args.arg2}...")
+        analysis = analyzer.analyze_task(args.arg2)
+        
+        print(f"\n📋 Task Analysis Results")
+        print("=" * 80)
+        print(f"Task ID:         {analysis.task_id}")
+        print(f"Feedback Count:  {analysis.feedback_count}")
+        print(f"Success:         {'✅ Yes' if analysis.success else '❌ No'}")
+        
+        if analysis.execution_time:
+            print(f"Avg Exec Time:   {analysis.execution_time:.2f}s")
+        
+        if analysis.quality_score:
+            print(f"Quality Score:   {analysis.quality_score:.2%}")
+        
+        if analysis.error_messages:
+            print(f"\n🚨 Errors ({len(analysis.error_messages)}):")
+            for error in analysis.error_messages[:5]:
+                print(f"  - {error}")
+        
+        if analysis.warnings:
+            print(f"\n⚠️  Warnings ({len(analysis.warnings)}):")
+            for warning in analysis.warnings[:5]:
+                print(f"  - {warning}")
+        
+        if analysis.resource_usage:
+            print(f"\n💻 Resource Usage:")
+            for resource, value in analysis.resource_usage.items():
+                print(f"  - {resource}: {value}")
+        
+        sys.exit(0)
+    
+    elif args.command == 'worker-performance':
+        # Show worker performance metrics
+        if not args.arg2:
+            print("Error: Worker ID required for worker-performance command")
+            print("Usage: co worker-performance <worker_id>")
+            sys.exit(1)
+        
+        from .storage_factory import create_feedback_storage
+        from .feedback_analyzer import FeedbackAnalyzer
+        
+        # Load config to get feedback settings
+        config = create_config(args.config)
+        feedback_config = getattr(config, 'feedback', {})
+        
+        storage = create_feedback_storage(feedback_config)
+        analyzer = FeedbackAnalyzer(storage)
+        
+        print(f"\n📊 Analyzing performance for worker {args.arg2}...")
+        perf = analyzer.analyze_worker_performance(args.arg2)
+        
+        print(f"\n👷 Worker Performance Report")
+        print("=" * 80)
+        print(f"Worker ID:       {perf.worker_id}")
+        print(f"Total Tasks:     {perf.total_tasks}")
+        print(f"Successful:      {perf.successful_tasks} ({perf.success_rate:.1%})")
+        print(f"Failed:          {perf.failed_tasks} ({perf.error_rate:.1%})")
+        print(f"Avg Exec Time:   {perf.average_execution_time:.2f}s")
+        print(f"Avg Quality:     {perf.average_quality_score:.2%}")
+        print(f"Avg Tokens:      {perf.average_tokens_used}")
+        print(f"Recent Trend:    {perf.recent_trend.title()}")
+        
+        if perf.severity_distribution:
+            print(f"\n📊 Severity Distribution:")
+            for severity, count in perf.severity_distribution.items():
+                print(f"  - {severity}: {count}")
+        
+        if perf.category_distribution:
+            print(f"\n📂 Category Distribution:")
+            for category, count in perf.category_distribution.items():
+                print(f"  - {category}: {count}")
+        
+        sys.exit(0)
+    
+    elif args.command == 'feedback-report':
+        # Generate comprehensive feedback report
+        from .feedback_storage import FeedbackStorage
+        from .feedback_analyzer import FeedbackAnalyzer
+        from datetime import datetime, timedelta
+        
+        storage = FeedbackStorage()
+        analyzer = FeedbackAnalyzer(storage)
+        
+        # Get time range (last 7 days by default)
+        end_time = datetime.now()
+        start_time = end_time - timedelta(days=7)
+        
+        print(f"\n📊 Generating feedback report...")
+        insights = analyzer.get_comprehensive_insights((start_time, end_time))
+        
+        print(f"\n📈 Comprehensive Feedback Report")
+        print("=" * 80)
+        print(f"Period:          {start_time.strftime('%Y-%m-%d')} to {end_time.strftime('%Y-%m-%d')}")
+        print(f"Total Feedback:  {insights.total_feedback}")
+        print(f"Success Rate:    {insights.overall_success_rate:.1%}")
+        print(f"Error Rate:      {insights.overall_error_rate:.1%}")
+        print(f"Avg Exec Time:   {insights.average_execution_time:.2f}s")
+        print(f"Avg Quality:     {insights.average_quality_score:.2%}")
+        
+        if insights.high_performing_workers:
+            print(f"\n🌟 High Performing Workers:")
+            for worker in insights.high_performing_workers[:5]:
+                print(f"  - {worker}")
+        
+        if insights.problematic_workers:
+            print(f"\n⚠️  Problematic Workers:")
+            for worker in insights.problematic_workers[:5]:
+                print(f"  - {worker}")
+        
+        if insights.bottleneck_tasks:
+            print(f"\n🐌 Bottleneck Tasks:")
+            for task in insights.bottleneck_tasks[:5]:
+                print(f"  - {task}")
+        
+        if insights.most_common_errors:
+            print(f"\n🚨 Most Common Errors:")
+            for error, count in insights.most_common_errors[:5]:
+                print(f"  - {error[:50]}... (occurred {count} times)")
+        
+        if insights.recommendations:
+            print(f"\n💡 Recommendations:")
+            for i, rec in enumerate(insights.recommendations[:5], 1):
+                print(f"  {i}. {rec}")
+        
+        sys.exit(0)
+    
+    elif args.command == 'export-metrics':
+        # Export metrics to file
+        if not args.arg2:
+            print("Error: Output file path required for export-metrics command")
+            print("Usage: co export-metrics <output_file>")
+            sys.exit(1)
+        
+        from .storage_factory import create_feedback_storage
+        from .feedback_analyzer import FeedbackAnalyzer
+        
+        # Load config to get feedback settings
+        config = create_config(args.config)
+        feedback_config = getattr(config, 'feedback', {})
+        
+        storage = create_feedback_storage(feedback_config)
+        analyzer = FeedbackAnalyzer(storage)
+        
+        print(f"📊 Exporting metrics to {args.arg2}...")
+        
+        try:
+            analyzer.export_analysis_report(args.arg2)
+            print(f"✅ Metrics exported successfully to: {args.arg2}")
+        except Exception as e:
+            print(f"❌ Failed to export metrics: {e}")
+            sys.exit(1)
+        
+        sys.exit(0)
+    
+    elif args.command == 'checkpoint':
+        # Create manual checkpoint
+        from .rollback_manager import RollbackManager, CheckpointType
+        
+        description = args.arg2 or "Manual checkpoint"
+        
+        print(f"📸 Creating checkpoint: {description}")
+        
+        rollback_manager = RollbackManager()
+        checkpoint_id = rollback_manager.create_checkpoint(
+            checkpoint_type=CheckpointType.MANUAL,
+            description=description
+        )
+        
+        print(f"✅ Checkpoint created: {checkpoint_id}")
+        sys.exit(0)
+    
+    elif args.command == 'list-checkpoints':
+        # List available checkpoints
+        from .rollback_manager import RollbackManager
+        
+        rollback_manager = RollbackManager()
+        checkpoints = rollback_manager.list_checkpoints()
+        
+        print(f"\n📋 Available Checkpoints")
+        print("=" * 80)
+        
+        if not checkpoints:
+            print("No checkpoints available")
+        else:
+            for cp in checkpoints:
+                print(f"\n🔹 {cp.checkpoint_id}")
+                print(f"   Created:     {cp.timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
+                print(f"   Type:        {cp.checkpoint_type.value}")
+                print(f"   Description: {cp.description}")
+                print(f"   Tasks:       {len(cp.task_states)}")
+                print(f"   Files:       {len(cp.file_snapshots)}")
+        
+        print(f"\n📊 Total checkpoints: {len(checkpoints)}")
+        sys.exit(0)
+    
+    elif args.command == 'rollback':
+        # Rollback to checkpoint
+        if not args.arg2:
+            print("Error: Checkpoint ID required for rollback command")
+            print("Usage: co rollback <checkpoint_id>")
+            sys.exit(1)
+        
+        from .rollback_manager import RollbackManager, RollbackStrategy
+        
+        # Confirm rollback
+        response = input(f"⚠️  Are you sure you want to rollback to checkpoint {args.arg2}? (y/N): ")
+        if response.lower() != 'y':
+            print("Rollback cancelled")
+            sys.exit(0)
+        
+        print(f"⏮️  Rolling back to checkpoint {args.arg2}...")
+        
+        rollback_manager = RollbackManager()
+        result = rollback_manager.rollback(
+            args.arg2,
+            strategy=RollbackStrategy.FULL
+        )
+        
+        if result.success:
+            print(f"✅ Rollback completed successfully")
+            print(f"   Duration:       {result.duration_seconds:.2f}s")
+            print(f"   Restored files: {len(result.restored_files)}")
+            print(f"   Rolled back tasks: {len(result.rolled_back_tasks)}")
+        else:
+            print(f"❌ Rollback failed")
+            for error in result.errors:
+                print(f"   - {error}")
+            sys.exit(1)
+        
+        sys.exit(0)
+    
     elif args.command == 'run' or args.command is None:
         # Default behavior - run orchestrator
         # Override config with command line args if provided
