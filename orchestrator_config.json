@@ -82,6 +82,23 @@
     "track_quality": true,
     "export_format": "json"
   },
+  "test_monitoring": {
+    "enabled": true,
+    "auto_start": true,
+    "test_dir": "tests",
+    "result_dir": ".test_results",
+    "watch_patterns": ["test_*.py"],
+    "check_interval": 60,
+    "run_on_file_change": true,
+    "periodic_full_run_hours": 1
+  },
+  "interactive_feedback": {
+    "enabled": false,
+    "auto_mode": true,
+    "prompt_timeout": 300,
+    "request_review_for_critical": true,
+    "decision_points_enabled": true
+  },
   "allowed_tools": [
     "create_file",
     "edit_file",

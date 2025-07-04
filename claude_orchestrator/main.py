@@ -731,6 +731,27 @@ class OpusManager:
         # Sort tasks by dependencies and priority
         sorted_tasks = self._sort_tasks_by_dependencies(worker_tasks)
         
+        # Collect feedback for task planning decision
+        if hasattr(self, 'feedback_collector') and self.feedback_collector:
+            try:
+                from .feedback_model import FeedbackType, FeedbackCategory
+                feedback_id = self.feedback_collector.collect_feedback(
+                    feedback_type=FeedbackType.DECISION,
+                    category=FeedbackCategory.PLANNING,
+                    message=f"Task planning completed: {len(sorted_tasks)} tasks prepared",
+                    context={
+                        "total_tasks": len(all_tasks),
+                        "ready_tasks": len(worker_tasks),
+                        "sorted_tasks": len(sorted_tasks),
+                        "phase": "task_decomposition"
+                    },
+                    worker_id="opus_manager",
+                    session_id=str(id(self))
+                )
+                logger.debug(f"Collected planning feedback: {feedback_id}")
+            except Exception as e:
+                logger.debug(f"Failed to collect planning feedback: {e}")
+        
         logger.info(f"Opus Manager: Prepared {len(sorted_tasks)} tasks for parallel execution")
         return sorted_tasks
     
@@ -768,6 +789,29 @@ class OpusManager:
     def delegate_task(self, task: WorkerTask):
         """Add task to the queue for workers to process"""
         logger.debug(f"Delegating task {task.task_id} to worker queue")
+        
+        # Collect feedback for worker allocation decision
+        if hasattr(self, 'feedback_collector') and self.feedback_collector:
+            try:
+                from .feedback_model import FeedbackType, FeedbackCategory
+                feedback_id = self.feedback_collector.collect_feedback(
+                    feedback_type=FeedbackType.DECISION,
+                    category=FeedbackCategory.EXECUTION,
+                    message=f"Task {task.task_id} delegated to worker pool",
+                    context={
+                        "task_id": str(task.task_id),
+                        "task_title": task.title,
+                        "dependencies": task.dependencies,
+                        "phase": "worker_allocation",
+                        "queue_size": self.task_queue.qsize()
+                    },
+                    worker_id="task_manager",
+                    session_id=str(id(self))
+                )
+                logger.debug(f"Collected delegation feedback: {feedback_id}")
+            except Exception as e:
+                logger.debug(f"Failed to collect delegation feedback: {e}")
+        
         self.task_queue.put(task)
     
     def monitor_progress(self):
@@ -1173,6 +1217,67 @@ class ClaudeOrchestrator:
             }
             logger.info("Rollback system initialized with settings: %s", self.rollback_config)
         
+        # Initialize test monitoring if configured
+        self.test_monitor = None
+        self.test_monitor_integration = None
+        if hasattr(config, 'test_monitoring') and config.test_monitoring.get('enabled', False):
+            try:
+                from .test_monitor import TestMonitor, TestMonitorIntegration
+                
+                test_config = config.test_monitoring
+                self.test_monitor = TestMonitor(
+                    test_dir=test_config.get('test_dir', 'tests'),
+                    result_dir=test_config.get('result_dir', '.test_results'),
+                    watch_patterns=test_config.get('watch_patterns', ['test_*.py'])
+                )
+                
+                # Create integration
+                self.test_monitor_integration = TestMonitorIntegration(self, self.test_monitor)
+                
+                # Start monitoring if auto-start is enabled
+                if test_config.get('auto_start', True):
+                    interval = test_config.get('check_interval', 60)
+                    self.test_monitor.start_monitoring(interval)
+                    logger.info(f"Test monitoring started with {interval}s interval")
+                
+                # Add test result callback for feedback
+                if self.feedback_storage:
+                    def store_test_feedback(results):
+                        try:
+                            from .feedback_model import create_test_feedback, FeedbackSeverity
+                            
+                            failed = sum(1 for r in results if r.status.value == 'failed')
+                            passed = sum(1 for r in results if r.status.value == 'passed')
+                            
+                            feedback = create_test_feedback(
+                                test_suite="continuous_monitoring",
+                                passed=passed,
+                                failed=failed,
+                                duration=sum(r.duration for r in results),
+                                failures=[{"test": r.test_name, "error": r.error_message} 
+                                         for r in results if r.status.value == 'failed'],
+                                severity=FeedbackSeverity.ERROR if failed > 0 else FeedbackSeverity.INFO,
+                                session_id=str(id(self))
+                            )
+                            self.feedback_storage.save(feedback)
+                        except Exception as e:
+                            logger.debug(f"Failed to store test feedback: {e}")
+                    
+                    self.test_monitor.add_callback(store_test_feedback)
+                
+            except Exception as e:
+                logger.warning(f"Failed to initialize test monitoring: {e}")
+        
+        # Initialize interactive feedback if configured
+        self.interactive_feedback = None
+        if hasattr(config, 'interactive_feedback') and config.interactive_feedback.get('enabled', False):
+            try:
+                from .interactive_feedback import InteractiveFeedbackIntegration
+                self.interactive_feedback = InteractiveFeedbackIntegration(self)
+                logger.info("Interactive feedback system initialized")
+            except Exception as e:
+                logger.warning(f"Failed to initialize interactive feedback: {e}")
+        
         # Initialize review integration
         from .review_applier import ReviewApplierIntegration
         self.review_integration = ReviewApplierIntegration(self.working_dir)
@@ -1252,6 +1357,35 @@ class ClaudeOrchestrator:
                 
                 # Perform Opus review
                 review_result = self._opus_review_task(task)
+                
+                # Collect feedback for review decision
+                if hasattr(self.manager, 'feedback_collector') and self.manager.feedback_collector:
+                    try:
+                        from .feedback_model import FeedbackType, FeedbackCategory, FeedbackSeverity
+                        
+                        severity = FeedbackSeverity.INFO
+                        if not review_result['success']:
+                            severity = FeedbackSeverity.ERROR
+                        elif review_result.get('follow_up_count', 0) > 0:
+                            severity = FeedbackSeverity.WARNING
+                            
+                        feedback_id = self.manager.feedback_collector.collect_feedback(
+                            feedback_type=FeedbackType.DECISION,
+                            category=FeedbackCategory.REVIEW,
+                            message=f"Opus review completed for task {task.task_id}",
+                            context={
+                                "task_id": str(task.task_id),
+                                "success": review_result['success'],
+                                "follow_up_count": review_result.get('follow_up_count', 0),
+                                "phase": "review_decision"
+                            },
+                            severity=severity,
+                            worker_id="opus_reviewer",
+                            session_id=str(id(self))
+                        )
+                        logger.debug(f"Collected review feedback: {feedback_id}")
+                    except Exception as e:
+                        logger.debug(f"Failed to collect review feedback: {e}")
                 
                 if review_result['success']:
                     # Check if follow-up tasks were created
@@ -2556,13 +2690,21 @@ Examples:
   co checkpoint "Before deployment"    # Create manual checkpoint
   co list-checkpoints                  # List available checkpoints
   co rollback cp_20250104_120000       # Rollback to specific checkpoint
+  
+  # Test Monitoring
+  co test-status                       # Show test monitoring status
+  co test-report                       # Generate test report
+  co run-tests                         # Manually run all tests
+  co run-tests pytest                  # Run specific test suite
         """
     )
     
     parser.add_argument('command', nargs='?', default='run', 
                        choices=['run', 'add', 'parse', 'check', 'status', 'init', 'list', 'show', 'next', 'update', 'expand', 'delete',
                                'analyze-feedback', 'worker-performance', 'feedback-report', 'export-metrics',
-                               'checkpoint', 'rollback', 'list-checkpoints'],
+                               'checkpoint', 'rollback', 'list-checkpoints',
+                               'test-status', 'test-report', 'run-tests',
+                               'feedback-shell'],
                        help='Command to execute (default: run)')
     
     parser.add_argument('--config', '-c', 
@@ -3200,6 +3342,185 @@ Examples:
             for error in result.errors:
                 print(f"   - {error}")
             sys.exit(1)
+        
+        sys.exit(0)
+    
+    elif args.command == 'test-status':
+        # Show test monitoring status
+        config = create_config(args.config)
+        orchestrator = ClaudeOrchestrator(config, None)
+        
+        if orchestrator.test_monitor:
+            status = orchestrator.test_monitor.get_test_summary()
+            
+            print("\n📊 Test Monitoring Status")
+            print("=" * 80)
+            print(f"Total Test Suites: {status['total_suites']}")
+            print(f"Total Test Files: {status['total_test_files']}")
+            
+            if status['suites']:
+                print("\n📋 Test Suites:")
+                for suite_name, suite_info in status['suites'].items():
+                    status_icon = "✅" if suite_info['last_status'] == 'passed' else "❌" if suite_info['last_status'] == 'failed' else "⏳"
+                    print(f"\n{status_icon} {suite_name}")
+                    print(f"   Files: {suite_info['test_files']}")
+                    if suite_info['last_run']:
+                        print(f"   Last Run: {suite_info['last_run']}")
+                        print(f"   Results: {suite_info['passed_tests']}/{suite_info['total_tests']} passed")
+                        print(f"   Avg Duration: {suite_info['average_duration']:.2f}s")
+            
+            if 'last_24h' in status:
+                print(f"\n📈 Last 24 Hours:")
+                stats = status['last_24h']
+                print(f"   Total Runs: {stats['total_runs']}")
+                print(f"   Passed: {stats['passed']} ({stats['passed']/stats['total_runs']*100:.1f}%)")
+                print(f"   Failed: {stats['failed']}")
+                print(f"   Avg Duration: {stats['average_duration']:.2f}s")
+            
+            # Show failing tests
+            failing = orchestrator.test_monitor.get_failing_tests()
+            if failing:
+                print(f"\n❌ Failing Tests ({len(failing)}):")
+                for test in failing[:5]:
+                    print(f"   - {test.test_name}")
+                    if test.error_message:
+                        print(f"     Error: {test.error_message[:60]}...")
+        else:
+            print("❌ Test monitoring is not enabled")
+            print("   Enable it in config: test_monitoring.enabled = true")
+        
+        sys.exit(0)
+    
+    elif args.command == 'test-report':
+        # Generate test report
+        config = create_config(args.config)
+        orchestrator = ClaudeOrchestrator(config, None)
+        
+        if orchestrator.test_monitor:
+            output_file = args.arg2 if args.arg2 else None
+            report = orchestrator.test_monitor.generate_test_report(output_file)
+            print(report)
+        else:
+            print("❌ Test monitoring is not enabled")
+        
+        sys.exit(0)
+    
+    elif args.command == 'run-tests':
+        # Manually trigger test run
+        config = create_config(args.config)
+        orchestrator = ClaudeOrchestrator(config, None)
+        
+        if orchestrator.test_monitor:
+            suite_name = args.arg2 if args.arg2 else None
+            
+            print("🧪 Running tests...")
+            if suite_name:
+                success = orchestrator.test_monitor.trigger_test_run(suite_name)
+                if success:
+                    print(f"✅ Triggered test suite: {suite_name}")
+                else:
+                    print(f"❌ Test suite not found: {suite_name}")
+            else:
+                # Run all tests
+                orchestrator.test_monitor.discover_tests()
+                results = orchestrator.test_monitor.run_tests()
+                
+                passed = sum(1 for r in results if r.status.value == 'passed')
+                failed = sum(1 for r in results if r.status.value == 'failed')
+                
+                print(f"\n📊 Test Results:")
+                print(f"   Total: {len(results)}")
+                print(f"   Passed: {passed}")
+                print(f"   Failed: {failed}")
+                
+                if failed > 0:
+                    print(f"\n❌ Failed Tests:")
+                    for result in results:
+                        if result.status.value == 'failed':
+                            print(f"   - {result.test_name}")
+                            if result.error_message:
+                                print(f"     {result.error_message[:100]}...")
+        else:
+            print("❌ Test monitoring is not enabled")
+        
+        sys.exit(0)
+    
+    elif args.command == 'feedback-shell':
+        # Launch interactive feedback shell
+        try:
+            # Import here to avoid circular imports
+            import cmd
+            import readline
+            from tabulate import tabulate
+            
+            # Create minimal cmd interface
+            class FeedbackShell(cmd.Cmd):
+                intro = '\n🔔 Interactive Feedback Shell\nType "help" for commands, "exit" to quit\n'
+                prompt = 'feedback> '
+                
+                def __init__(self, storage):
+                    super().__init__()
+                    self.storage = storage
+                
+                def do_list(self, arg):
+                    """List recent feedback entries"""
+                    feedbacks = self.storage.query(limit=10)
+                    if feedbacks:
+                        data = [[f.feedback_id[:8], f.timestamp.strftime('%Y-%m-%d %H:%M'), 
+                                f.feedback_type.value, f.message[:50]] for f in feedbacks]
+                        print(tabulate(data, headers=['ID', 'Time', 'Type', 'Message']))
+                    else:
+                        print("No feedback entries found")
+                
+                def do_show(self, feedback_id):
+                    """Show detailed feedback entry"""
+                    if not feedback_id:
+                        print("Usage: show <feedback_id>")
+                        return
+                    feedback = self.storage.load(feedback_id)
+                    if feedback:
+                        print(f"\nID: {feedback.feedback_id}")
+                        print(f"Type: {feedback.feedback_type.value}")
+                        print(f"Message: {feedback.message}")
+                        print(f"Time: {feedback.timestamp}")
+                    else:
+                        print(f"Feedback {feedback_id} not found")
+                
+                def do_stats(self, arg):
+                    """Show feedback statistics"""
+                    stats = self.storage.get_statistics() if hasattr(self.storage, 'get_statistics') else {}
+                    print(f"\n📊 Feedback Statistics")
+                    print(f"Total: {self.storage.count()}")
+                    if 'type_counts' in stats:
+                        print("\nBy Type:")
+                        for t, c in stats['type_counts'].items():
+                            print(f"  {t}: {c}")
+                
+                def do_exit(self, arg):
+                    """Exit the shell"""
+                    return True
+                
+                def do_quit(self, arg):
+                    """Exit the shell"""
+                    return True
+            
+            # Create and run shell
+            config = create_config(args.config)
+            if hasattr(config, 'feedback') and config.feedback.get('enabled', True):
+                from .storage_factory import create_feedback_storage
+                storage = create_feedback_storage(config.feedback)
+                shell = FeedbackShell(storage)
+                shell.cmdloop()
+            else:
+                print("❌ Feedback system is not enabled")
+                
+        except ImportError as e:
+            print(f"❌ Required module not available: {e}")
+            print("   Install with: pip install tabulate")
+        except KeyboardInterrupt:
+            print("\nExiting...")
+        except Exception as e:
+            print(f"❌ Error: {e}")
         
         sys.exit(0)
     
