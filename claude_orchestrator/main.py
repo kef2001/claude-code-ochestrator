@@ -1145,13 +1145,16 @@ class ClaudeOrchestrator:
         # Initialize feedback and rollback systems if enabled
         self.feedback_storage = None
         self.feedback_analyzer = None
+        self.feedback_collector = None
         self.rollback_manager = None
         
         if hasattr(config, 'feedback') and config.feedback.get('enabled', True):
             from .storage_factory import create_feedback_storage
             from .feedback_analyzer import FeedbackAnalyzer
+            from .feedback_api import FeedbackCollector
             self.feedback_storage = create_feedback_storage(config.feedback)
             self.feedback_analyzer = FeedbackAnalyzer(self.feedback_storage)
+            self.feedback_collector = FeedbackCollector(storage=self.feedback_storage)
             logger.info("Feedback system initialized")
         
         if hasattr(config, 'rollback') and config.rollback.get('enabled', True):
@@ -1347,9 +1350,14 @@ class ClaudeOrchestrator:
                     
                     self.progress.update()
                 
+                # Track start time for performance feedback
+                start_time = time.time()
+                
                 # Process task
                 completed_task = worker.process_task(task)
                 
+                # Calculate execution time
+                execution_time = time.time() - start_time
 
                 # Move task to appropriate collection
                 del self.manager.active_tasks[task.task_id]
@@ -1363,6 +1371,21 @@ class ClaudeOrchestrator:
                         self.manager.task_master.complete_task(str(task.task_id))
                     except Exception as e:
                         logger.debug(f"Could not update TaskMaster: {e}")
+                    
+                    # Collect feedback if enabled
+                    if hasattr(self.manager, 'feedback_collector') and self.manager.feedback_collector:
+                        try:
+                            # Collect success feedback with performance metrics
+                            feedback_id = self.manager.feedback_collector.collect_task_feedback(
+                                task_id=str(task.task_id),
+                                success=True,
+                                message=f"Task completed successfully by {worker.worker_id}",
+                                worker_id=worker.worker_id,
+                                execution_time=execution_time
+                            )
+                            logger.debug(f"Collected feedback {feedback_id} for completed task {task.task_id}")
+                        except Exception as e:
+                            logger.debug(f"Failed to collect feedback for task {task.task_id}: {e}")
                     
                     if self.use_progress_display and self.progress:
                         # Update counts
