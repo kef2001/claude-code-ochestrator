@@ -1,432 +1,442 @@
-"""
-Feedback Storage Layer for Claude Orchestrator
+"""Feedback storage implementation with JSON backend."""
 
-This module provides persistent storage for feedback data using SQLite database.
-Based on requirements from add_feedback_storage_tasks.py and Task 2 specifications.
-"""
-
-import sqlite3
-import logging
-from pathlib import Path
-from datetime import datetime
-from typing import Optional, List, Dict, Any, Union
-from contextlib import contextmanager
-import threading
 import json
-from dataclasses import asdict
+import os
+from abc import ABC, abstractmethod
+from datetime import datetime
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Callable
+from threading import Lock
+import logging
 
-from .feedback_models import FeedbackEntry, FeedbackType, RatingScale, FeedbackSummary
+from .feedback_model import FeedbackModel, FeedbackType, FeedbackSeverity, FeedbackCategory
 
 
 logger = logging.getLogger(__name__)
 
 
-class FeedbackStorageError(Exception):
-    """Base exception for feedback storage operations"""
-    pass
+class FeedbackStorageInterface(ABC):
+    """Abstract interface for feedback storage backends."""
+    
+    @abstractmethod
+    def save(self, feedback: FeedbackModel) -> None:
+        """Save feedback to storage."""
+        pass
+    
+    @abstractmethod
+    def load(self, feedback_id: str) -> Optional[FeedbackModel]:
+        """Load feedback by ID."""
+        pass
+    
+    @abstractmethod
+    def query(
+        self,
+        task_id: Optional[str] = None,
+        worker_id: Optional[str] = None,
+        feedback_type: Optional[FeedbackType] = None,
+        severity: Optional[FeedbackSeverity] = None,
+        category: Optional[FeedbackCategory] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        tags: Optional[List[str]] = None,
+        limit: Optional[int] = None
+    ) -> List[FeedbackModel]:
+        """Query feedback with filters."""
+        pass
+    
+    @abstractmethod
+    def delete(self, feedback_id: str) -> bool:
+        """Delete feedback by ID."""
+        pass
+    
+    @abstractmethod
+    def clear(self) -> None:
+        """Clear all feedback from storage."""
+        pass
+    
+    @abstractmethod
+    def count(self) -> int:
+        """Count total feedback entries."""
+        pass
 
 
-class FeedbackNotFoundError(FeedbackStorageError):
-    """Raised when feedback entry is not found"""
-    pass
+class JSONFeedbackStorage(FeedbackStorageInterface):
+    """JSON file-based feedback storage implementation."""
+    
+    def __init__(self, storage_path: str = ".feedback"):
+        """Initialize JSON feedback storage.
+        
+        Args:
+            storage_path: Directory path for storing feedback files
+        """
+        self.storage_path = Path(storage_path)
+        self.storage_path.mkdir(parents=True, exist_ok=True)
+        self._lock = Lock()
+        self._index_file = self.storage_path / "index.json"
+        self._ensure_index()
+    
+    def _ensure_index(self) -> None:
+        """Ensure index file exists."""
+        if not self._index_file.exists():
+            self._save_index({})
+    
+    def _load_index(self) -> Dict[str, Dict[str, Any]]:
+        """Load feedback index."""
+        try:
+            with open(self._index_file, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(f"Failed to load index: {e}")
+            return {}
+    
+    def _save_index(self, index: Dict[str, Dict[str, Any]]) -> None:
+        """Save feedback index."""
+        try:
+            with open(self._index_file, 'w') as f:
+                json.dump(index, f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to save index: {e}")
+    
+    def _get_feedback_file(self, feedback_id: str) -> Path:
+        """Get path for feedback file."""
+        # Use first 2 chars of ID for directory sharding
+        shard = feedback_id[:2] if len(feedback_id) >= 2 else "00"
+        shard_dir = self.storage_path / shard
+        shard_dir.mkdir(exist_ok=True)
+        return shard_dir / f"{feedback_id}.json"
+    
+    def save(self, feedback: FeedbackModel) -> None:
+        """Save feedback to storage."""
+        with self._lock:
+            try:
+                # Validate feedback
+                feedback.validate()
+                
+                # Save feedback file
+                feedback_file = self._get_feedback_file(feedback.feedback_id)
+                feedback_data = feedback.to_dict()
+                
+                with open(feedback_file, 'w') as f:
+                    json.dump(feedback_data, f, indent=2)
+                
+                # Update index
+                index = self._load_index()
+                index[feedback.feedback_id] = {
+                    "task_id": feedback.context.task_id,
+                    "worker_id": feedback.context.worker_id,
+                    "feedback_type": feedback.feedback_type.value,
+                    "severity": feedback.severity.value,
+                    "category": feedback.category.value,
+                    "timestamp": feedback.timestamp.isoformat(),
+                    "tags": feedback.context.tags,
+                    "file": str(feedback_file.relative_to(self.storage_path))
+                }
+                self._save_index(index)
+                
+                logger.info(f"Saved feedback {feedback.feedback_id}")
+                
+            except Exception as e:
+                logger.error(f"Failed to save feedback: {e}")
+                raise
+    
+    def load(self, feedback_id: str) -> Optional[FeedbackModel]:
+        """Load feedback by ID."""
+        with self._lock:
+            try:
+                feedback_file = self._get_feedback_file(feedback_id)
+                
+                if not feedback_file.exists():
+                    return None
+                
+                with open(feedback_file, 'r') as f:
+                    data = json.load(f)
+                
+                return FeedbackModel.from_dict(data)
+                
+            except Exception as e:
+                logger.error(f"Failed to load feedback {feedback_id}: {e}")
+                return None
+    
+    def query(
+        self,
+        task_id: Optional[str] = None,
+        worker_id: Optional[str] = None,
+        feedback_type: Optional[FeedbackType] = None,
+        severity: Optional[FeedbackSeverity] = None,
+        category: Optional[FeedbackCategory] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        tags: Optional[List[str]] = None,
+        limit: Optional[int] = None
+    ) -> List[FeedbackModel]:
+        """Query feedback with filters."""
+        with self._lock:
+            results = []
+            index = self._load_index()
+            
+            # Filter index entries
+            for feedback_id, meta in index.items():
+                # Apply filters
+                if task_id and meta.get("task_id") != task_id:
+                    continue
+                
+                if worker_id and meta.get("worker_id") != worker_id:
+                    continue
+                
+                if feedback_type and meta.get("feedback_type") != feedback_type.value:
+                    continue
+                
+                if severity and meta.get("severity") != severity.value:
+                    continue
+                
+                if category and meta.get("category") != category.value:
+                    continue
+                
+                if tags:
+                    meta_tags = set(meta.get("tags", []))
+                    if not all(tag in meta_tags for tag in tags):
+                        continue
+                
+                # Time range filter
+                if start_time or end_time:
+                    timestamp = datetime.fromisoformat(meta.get("timestamp", ""))
+                    if start_time and timestamp < start_time:
+                        continue
+                    if end_time and timestamp > end_time:
+                        continue
+                
+                # Load the full feedback
+                feedback = self.load(feedback_id)
+                if feedback:
+                    results.append(feedback)
+                
+                # Check limit
+                if limit and len(results) >= limit:
+                    break
+            
+            # Sort by timestamp (newest first)
+            results.sort(key=lambda f: f.timestamp, reverse=True)
+            
+            return results
+    
+    def delete(self, feedback_id: str) -> bool:
+        """Delete feedback by ID."""
+        with self._lock:
+            try:
+                # Remove from index
+                index = self._load_index()
+                if feedback_id not in index:
+                    return False
+                
+                # Delete file
+                feedback_file = self._get_feedback_file(feedback_id)
+                if feedback_file.exists():
+                    feedback_file.unlink()
+                
+                # Update index
+                del index[feedback_id]
+                self._save_index(index)
+                
+                logger.info(f"Deleted feedback {feedback_id}")
+                return True
+                
+            except Exception as e:
+                logger.error(f"Failed to delete feedback {feedback_id}: {e}")
+                return False
+    
+    def clear(self) -> None:
+        """Clear all feedback from storage."""
+        with self._lock:
+            try:
+                # Remove all feedback files
+                for item in self.storage_path.rglob("*.json"):
+                    if item.name != "index.json":
+                        item.unlink()
+                
+                # Remove shard directories
+                for item in self.storage_path.iterdir():
+                    if item.is_dir() and len(item.name) == 2:
+                        item.rmdir()
+                
+                # Clear index
+                self._save_index({})
+                
+                logger.info("Cleared all feedback from storage")
+                
+            except Exception as e:
+                logger.error(f"Failed to clear storage: {e}")
+                raise
+    
+    def count(self) -> int:
+        """Count total feedback entries."""
+        with self._lock:
+            index = self._load_index()
+            return len(index)
+    
+    def get_statistics(self) -> Dict[str, Any]:
+        """Get storage statistics."""
+        with self._lock:
+            index = self._load_index()
+            
+            # Count by type
+            type_counts = {}
+            severity_counts = {}
+            category_counts = {}
+            
+            for meta in index.values():
+                # Type counts
+                ft = meta.get("feedback_type", "unknown")
+                type_counts[ft] = type_counts.get(ft, 0) + 1
+                
+                # Severity counts
+                sev = meta.get("severity", "unknown")
+                severity_counts[sev] = severity_counts.get(sev, 0) + 1
+                
+                # Category counts
+                cat = meta.get("category", "unknown")
+                category_counts[cat] = category_counts.get(cat, 0) + 1
+            
+            return {
+                "total_count": len(index),
+                "type_counts": type_counts,
+                "severity_counts": severity_counts,
+                "category_counts": category_counts,
+                "storage_size_mb": self._calculate_storage_size() / (1024 * 1024)
+            }
+    
+    def _calculate_storage_size(self) -> int:
+        """Calculate total storage size in bytes."""
+        total_size = 0
+        for item in self.storage_path.rglob("*.json"):
+            total_size += item.stat().st_size
+        return total_size
 
 
 class FeedbackStorage:
-    """
-    SQLite-based storage backend for feedback data
+    """Main feedback storage class with caching and optimization."""
     
-    Provides CRUD operations for feedback entries with proper transaction support,
-    connection pooling, and error handling.
-    """
-    
-    def __init__(self, db_path: Union[str, Path] = "feedback.db"):
-        """
-        Initialize feedback storage with SQLite database
+    def __init__(self, backend: Optional[FeedbackStorageInterface] = None):
+        """Initialize feedback storage.
         
         Args:
-            db_path: Path to SQLite database file
+            backend: Storage backend to use (defaults to JSONFeedbackStorage)
         """
-        self.db_path = Path(db_path)
-        self._local = threading.local()
-        self._lock = threading.Lock()
-        
-        # Create database and tables if they don't exist
-        self._initialize_database()
-        
-        logger.info(f"Initialized FeedbackStorage with database: {self.db_path}")
+        self.backend = backend or JSONFeedbackStorage()
+        self._cache: Dict[str, FeedbackModel] = {}
+        self._cache_size = 1000
+        self._lock = Lock()
     
-    def _get_connection(self) -> sqlite3.Connection:
-        """Get thread-local database connection"""
-        if not hasattr(self._local, 'connection'):
-            self._local.connection = sqlite3.connect(
-                self.db_path,
-                timeout=30.0,
-                check_same_thread=False
-            )
-            self._local.connection.row_factory = sqlite3.Row
-            # Enable foreign key constraints
-            self._local.connection.execute("PRAGMA foreign_keys = ON")
-        return self._local.connection
+    def save(self, feedback: FeedbackModel) -> None:
+        """Save feedback with caching."""
+        with self._lock:
+            # Save to backend
+            self.backend.save(feedback)
+            
+            # Update cache
+            self._cache[feedback.feedback_id] = feedback
+            
+            # Limit cache size
+            if len(self._cache) > self._cache_size:
+                # Remove oldest entries
+                oldest_ids = sorted(
+                    self._cache.keys(),
+                    key=lambda fid: self._cache[fid].timestamp
+                )[:100]
+                for fid in oldest_ids:
+                    del self._cache[fid]
     
-    @contextmanager
-    def _transaction(self):
-        """Context manager for database transactions"""
-        conn = self._get_connection()
-        try:
-            yield conn
-            conn.commit()
-        except Exception:
-            conn.rollback()
-            raise
+    def load(self, feedback_id: str) -> Optional[FeedbackModel]:
+        """Load feedback with caching."""
+        with self._lock:
+            # Check cache first
+            if feedback_id in self._cache:
+                return self._cache[feedback_id]
+            
+            # Load from backend
+            feedback = self.backend.load(feedback_id)
+            if feedback:
+                self._cache[feedback_id] = feedback
+            
+            return feedback
     
-    def _initialize_database(self):
-        """Create database schema if it doesn't exist"""
-        with self._transaction() as conn:
-            # Create feedback table
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS feedback (
-                    id TEXT PRIMARY KEY,
-                    task_id TEXT NOT NULL,
-                    feedback_type TEXT NOT NULL,
-                    content TEXT NOT NULL,
-                    rating INTEGER,
-                    user_id TEXT,
-                    metadata TEXT,
-                    created_at TIMESTAMP NOT NULL,
-                    updated_at TIMESTAMP NOT NULL,
-                    CONSTRAINT rating_range CHECK (rating IS NULL OR (rating >= 1 AND rating <= 5))
-                )
-            """)
-            
-            # Create indexes for performance
-            conn.execute("""
-                CREATE INDEX IF NOT EXISTS idx_feedback_task_id ON feedback(task_id)
-            """)
-            
-            conn.execute("""
-                CREATE INDEX IF NOT EXISTS idx_feedback_type ON feedback(feedback_type)
-            """)
-            
-            conn.execute("""
-                CREATE INDEX IF NOT EXISTS idx_feedback_created_at ON feedback(created_at)
-            """)
-            
-            logger.info("Database schema initialized successfully")
+    def query(self, **kwargs) -> List[FeedbackModel]:
+        """Query feedback from backend."""
+        return self.backend.query(**kwargs)
     
-    def create_feedback(self, feedback_entry: FeedbackEntry) -> str:
-        """
-        Create a new feedback entry
+    def delete(self, feedback_id: str) -> bool:
+        """Delete feedback."""
+        with self._lock:
+            # Remove from cache
+            if feedback_id in self._cache:
+                del self._cache[feedback_id]
+            
+            # Delete from backend
+            return self.backend.delete(feedback_id)
+    
+    def clear(self) -> None:
+        """Clear all feedback."""
+        with self._lock:
+            self._cache.clear()
+            self.backend.clear()
+    
+    def count(self) -> int:
+        """Count total feedback entries."""
+        return self.backend.count()
+    
+    def get_statistics(self) -> Dict[str, Any]:
+        """Get storage statistics."""
+        if hasattr(self.backend, 'get_statistics'):
+            return self.backend.get_statistics()
+        return {"total_count": self.count()}
+    
+    def batch_save(self, feedbacks: List[FeedbackModel]) -> None:
+        """Save multiple feedbacks efficiently."""
+        for feedback in feedbacks:
+            self.save(feedback)
+    
+    def export_to_file(self, filepath: str, filters: Optional[Dict[str, Any]] = None) -> int:
+        """Export feedbacks to a file.
         
         Args:
-            feedback_entry: FeedbackEntry instance to store
+            filepath: Path to export file
+            filters: Optional query filters
             
         Returns:
-            str: The ID of the created feedback entry
-            
-        Raises:
-            FeedbackStorageError: If creation fails
+            Number of feedbacks exported
         """
-        try:
-            with self._transaction() as conn:
-                # Convert metadata to JSON if present
-                metadata_json = None
-                if feedback_entry.metadata:
-                    metadata_json = json.dumps(feedback_entry.metadata.to_dict())
-                
-                conn.execute("""
-                    INSERT INTO feedback (
-                        id, task_id, feedback_type, content, rating, 
-                        user_id, metadata, created_at, updated_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    feedback_entry.id,
-                    feedback_entry.task_id,
-                    feedback_entry.feedback_type.value,
-                    feedback_entry.content,
-                    feedback_entry.rating.value if feedback_entry.rating else None,
-                    feedback_entry.user_id,
-                    metadata_json,
-                    feedback_entry.timestamp.isoformat(),
-                    feedback_entry.timestamp.isoformat()
-                ))
-                
-                logger.info(f"Created feedback entry: {feedback_entry.id}")
-                return feedback_entry.id
-                
-        except sqlite3.Error as e:
-            logger.error(f"Failed to create feedback: {e}")
-            raise FeedbackStorageError(f"Failed to create feedback: {e}")
+        feedbacks = self.query(**(filters or {}))
+        
+        with open(filepath, 'w') as f:
+            data = {
+                "export_time": datetime.now().isoformat(),
+                "count": len(feedbacks),
+                "feedbacks": [fb.to_dict() for fb in feedbacks]
+            }
+            json.dump(data, f, indent=2)
+        
+        return len(feedbacks)
     
-    def get_feedback(self, feedback_id: str) -> Optional[FeedbackEntry]:
-        """
-        Retrieve a single feedback entry by ID
+    def import_from_file(self, filepath: str) -> int:
+        """Import feedbacks from a file.
         
         Args:
-            feedback_id: ID of the feedback entry
+            filepath: Path to import file
             
         Returns:
-            FeedbackEntry or None if not found
-            
-        Raises:
-            FeedbackStorageError: If retrieval fails
+            Number of feedbacks imported
         """
-        try:
-            conn = self._get_connection()
-            cursor = conn.execute("""
-                SELECT * FROM feedback WHERE id = ?
-            """, (feedback_id,))
-            
-            row = cursor.fetchone()
-            if row:
-                return self._row_to_feedback_entry(row)
-            return None
-            
-        except sqlite3.Error as e:
-            logger.error(f"Failed to get feedback {feedback_id}: {e}")
-            raise FeedbackStorageError(f"Failed to get feedback: {e}")
-    
-    def get_feedback_by_task(self, task_id: str) -> List[FeedbackEntry]:
-        """
-        Get all feedback entries for a specific task
+        with open(filepath, 'r') as f:
+            data = json.load(f)
         
-        Args:
-            task_id: ID of the task
-            
-        Returns:
-            List of FeedbackEntry objects
-            
-        Raises:
-            FeedbackStorageError: If retrieval fails
-        """
-        try:
-            conn = self._get_connection()
-            cursor = conn.execute("""
-                SELECT * FROM feedback 
-                WHERE task_id = ? 
-                ORDER BY created_at DESC
-            """, (task_id,))
-            
-            return [self._row_to_feedback_entry(row) for row in cursor.fetchall()]
-            
-        except sqlite3.Error as e:
-            logger.error(f"Failed to get feedback for task {task_id}: {e}")
-            raise FeedbackStorageError(f"Failed to get feedback for task: {e}")
-    
-    def update_feedback(self, feedback_id: str, updates: Dict[str, Any]) -> bool:
-        """
-        Update an existing feedback entry
+        feedbacks_data = data.get("feedbacks", [])
+        count = 0
         
-        Args:
-            feedback_id: ID of the feedback entry to update
-            updates: Dictionary of fields to update
-            
-        Returns:
-            bool: True if update was successful, False if entry not found
-            
-        Raises:
-            FeedbackStorageError: If update fails
-        """
-        try:
-            # Build dynamic update query
-            set_clauses = []
-            values = []
-            
-            allowed_fields = ['content', 'rating', 'feedback_type']
-            for field, value in updates.items():
-                if field in allowed_fields:
-                    set_clauses.append(f"{field} = ?")
-                    if field == 'rating' and value is not None:
-                        values.append(value.value if isinstance(value, RatingScale) else value)
-                    elif field == 'feedback_type':
-                        values.append(value.value if isinstance(value, FeedbackType) else value)
-                    else:
-                        values.append(value)
-            
-            if not set_clauses:
-                logger.warning(f"No valid fields to update for feedback {feedback_id}")
-                return False
-            
-            # Add updated timestamp
-            set_clauses.append("updated_at = ?")
-            values.append(datetime.now().isoformat())
-            values.append(feedback_id)
-            
-            with self._transaction() as conn:
-                cursor = conn.execute(f"""
-                    UPDATE feedback 
-                    SET {', '.join(set_clauses)}
-                    WHERE id = ?
-                """, values)
-                
-                success = cursor.rowcount > 0
-                if success:
-                    logger.info(f"Updated feedback entry: {feedback_id}")
-                else:
-                    logger.warning(f"Feedback entry not found: {feedback_id}")
-                return success
-                
-        except sqlite3.Error as e:
-            logger.error(f"Failed to update feedback {feedback_id}: {e}")
-            raise FeedbackStorageError(f"Failed to update feedback: {e}")
-    
-    def delete_feedback(self, feedback_id: str) -> bool:
-        """
-        Delete a feedback entry
+        for fb_data in feedbacks_data:
+            try:
+                feedback = FeedbackModel.from_dict(fb_data)
+                self.save(feedback)
+                count += 1
+            except Exception as e:
+                logger.error(f"Failed to import feedback: {e}")
         
-        Args:
-            feedback_id: ID of the feedback entry to delete
-            
-        Returns:
-            bool: True if deletion was successful, False if entry not found
-            
-        Raises:
-            FeedbackStorageError: If deletion fails
-        """
-        try:
-            with self._transaction() as conn:
-                cursor = conn.execute("""
-                    DELETE FROM feedback WHERE id = ?
-                """, (feedback_id,))
-                
-                success = cursor.rowcount > 0
-                if success:
-                    logger.info(f"Deleted feedback entry: {feedback_id}")
-                else:
-                    logger.warning(f"Feedback entry not found: {feedback_id}")
-                return success
-                
-        except sqlite3.Error as e:
-            logger.error(f"Failed to delete feedback {feedback_id}: {e}")
-            raise FeedbackStorageError(f"Failed to delete feedback: {e}")
-    
-    def list_feedback(
-        self, 
-        task_id: Optional[str] = None,
-        feedback_type: Optional[FeedbackType] = None,
-        limit: Optional[int] = None,
-        offset: int = 0
-    ) -> List[FeedbackEntry]:
-        """
-        List feedback entries with optional filtering
-        
-        Args:
-            task_id: Filter by task ID
-            feedback_type: Filter by feedback type
-            limit: Maximum number of entries to return
-            offset: Number of entries to skip
-            
-        Returns:
-            List of FeedbackEntry objects
-            
-        Raises:
-            FeedbackStorageError: If query fails
-        """
-        try:
-            conditions = []
-            values = []
-            
-            if task_id:
-                conditions.append("task_id = ?")
-                values.append(task_id)
-            
-            if feedback_type:
-                conditions.append("feedback_type = ?")
-                values.append(feedback_type.value)
-            
-            where_clause = ""
-            if conditions:
-                where_clause = f"WHERE {' AND '.join(conditions)}"
-            
-            limit_clause = ""
-            if limit:
-                limit_clause = f"LIMIT {limit} OFFSET {offset}"
-            
-            conn = self._get_connection()
-            cursor = conn.execute(f"""
-                SELECT * FROM feedback 
-                {where_clause}
-                ORDER BY created_at DESC
-                {limit_clause}
-            """, values)
-            
-            return [self._row_to_feedback_entry(row) for row in cursor.fetchall()]
-            
-        except sqlite3.Error as e:
-            logger.error(f"Failed to list feedback: {e}")
-            raise FeedbackStorageError(f"Failed to list feedback: {e}")
-    
-    def get_feedback_summary(self, task_id: str) -> FeedbackSummary:
-        """
-        Get summary statistics for feedback on a specific task
-        
-        Args:
-            task_id: ID of the task
-            
-        Returns:
-            FeedbackSummary with aggregated statistics
-            
-        Raises:
-            FeedbackStorageError: If query fails
-        """
-        try:
-            feedback_entries = self.get_feedback_by_task(task_id)
-            
-            # Use the existing function from feedback_models
-            from .feedback_models import calculate_feedback_summary
-            return calculate_feedback_summary(feedback_entries)
-            
-        except Exception as e:
-            logger.error(f"Failed to calculate feedback summary for task {task_id}: {e}")
-            raise FeedbackStorageError(f"Failed to calculate feedback summary: {e}")
-    
-    def _row_to_feedback_entry(self, row: sqlite3.Row) -> FeedbackEntry:
-        """Convert database row to FeedbackEntry object"""
-        from .feedback_models import FeedbackMetadata
-        
-        # Parse metadata if present
-        metadata = None
-        if row['metadata']:
-            metadata_dict = json.loads(row['metadata'])
-            metadata = FeedbackMetadata.from_dict(metadata_dict)
-        
-        return FeedbackEntry(
-            id=row['id'],
-            task_id=row['task_id'],
-            timestamp=datetime.fromisoformat(row['created_at']),
-            feedback_type=FeedbackType(row['feedback_type']),
-            content=row['content'],
-            rating=RatingScale(row['rating']) if row['rating'] else None,
-            user_id=row['user_id'],
-            metadata=metadata
-        )
-    
-    def close(self):
-        """Close database connections"""
-        if hasattr(self._local, 'connection'):
-            self._local.connection.close()
-            delattr(self._local, 'connection')
-        logger.info("Closed feedback storage connections")
-    
-    def __enter__(self):
-        """Context manager entry"""
-        return self
-    
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit"""
-        self.close()
-
-
-def create_feedback_storage(db_path: Optional[str] = None) -> FeedbackStorage:
-    """
-    Factory function to create a FeedbackStorage instance
-    
-    Args:
-        db_path: Optional path to database file
-        
-    Returns:
-        FeedbackStorage instance
-    """
-    if db_path is None:
-        db_path = "feedback.db"
-    
-    return FeedbackStorage(db_path)
+        return count
