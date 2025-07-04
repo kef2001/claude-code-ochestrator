@@ -39,6 +39,13 @@ from .execution_tracer import (
 from .task_decomposer import (
     TaskDecomposer, DecompositionStrategy, task_decomposer
 )
+from .rollback import (
+    RollbackManager, RollbackReason, create_rollback_manager
+)
+from .rollback_strategies import (
+    RollbackStrategyManager, RollbackScope, RollbackStrategyType,
+    ComponentType, create_rollback_scope
+)
 
 # Import existing components
 from .task_master import TaskManager, Task as TMTask, TaskStatus as TMTaskStatus
@@ -79,6 +86,11 @@ class EnhancedTaskContext:
     completed_at: Optional[datetime] = None
     status: EnhancedTaskStatus = EnhancedTaskStatus.PENDING
     metadata: Dict[str, Any] = field(default_factory=dict)
+    # Rollback fields
+    rollback_checkpoints: List[str] = field(default_factory=list)
+    last_stable_checkpoint: Optional[str] = None
+    rollback_enabled: bool = True
+    rollback_on_failure: bool = True
 
 
 class EnhancedClaudeOrchestrator:
@@ -103,6 +115,17 @@ class EnhancedClaudeOrchestrator:
         self.checkpoint_manager = checkpoint_manager
         self.circuit_breaker_manager = circuit_breaker_manager
         
+        # Rollback components
+        rollback_storage_dir = self.config_manager.get("rollback_storage_dir", ".taskmaster/rollbacks")
+        self.rollback_manager = create_rollback_manager(
+            checkpoint_manager=self.checkpoint_manager,
+            storage_dir=rollback_storage_dir
+        )
+        self.rollback_strategy_manager = RollbackStrategyManager(self.rollback_manager)
+        
+        # Register rollback callbacks
+        self._setup_rollback_callbacks()
+        
         # Task tracking
         self.active_tasks: Dict[str, EnhancedTaskContext] = {}
         self.completed_tasks: List[EnhancedTaskContext] = []
@@ -126,6 +149,36 @@ class EnhancedClaudeOrchestrator:
         self._initialize_workers()
         
         logger.info("Enhanced Claude Orchestrator initialized with all improvements")
+    
+    def _setup_rollback_callbacks(self):
+        """Setup rollback event callbacks"""
+        def on_rollback_event(event_type: str, rollback_record, checkpoint_data):
+            """Handle rollback events"""
+            task_id = rollback_record.task_id
+            
+            # Update task context if active
+            if task_id in self.active_tasks:
+                context = self.active_tasks[task_id]
+                context.metadata["last_rollback"] = {
+                    "rollback_id": rollback_record.rollback_id,
+                    "reason": rollback_record.reason.value,
+                    "checkpoint_id": rollback_record.checkpoint_id,
+                    "event_type": event_type,
+                    "timestamp": datetime.now().isoformat()
+                }
+            
+            # Log rollback event
+            logger.info(f"Rollback {event_type} for task {task_id}: "
+                      f"checkpoint={rollback_record.checkpoint_id}, "
+                      f"reason={rollback_record.reason.value}")
+            
+            # Update metrics
+            if event_type == "after_rollback" and rollback_record.status.value == "success":
+                self.metrics["successful_rollbacks"] = self.metrics.get("successful_rollbacks", 0) + 1
+            elif event_type == "after_rollback" and rollback_record.status.value == "failed":
+                self.metrics["failed_rollbacks"] = self.metrics.get("failed_rollbacks", 0) + 1
+        
+        self.rollback_manager.register_rollback_callback(on_rollback_event)
     
     def _initialize_workers(self):
         """Initialize worker profiles with capabilities"""
@@ -209,23 +262,36 @@ class EnhancedClaudeOrchestrator:
             
             # Step 1: Analyze task complexity
             await self._analyze_task_complexity(context)
+            await self._create_task_checkpoint(context, "Task complexity analyzed", 
+                                             {"complexity": context.metadata.get("task_requirements")})
             
             # Step 2: Decompose if needed
             if auto_decompose:
                 await self._handle_task_decomposition(context)
+                if context.metadata.get("decomposed"):
+                    await self._create_task_checkpoint(context, "Task decomposition completed",
+                                                     {"decomposition_plan": context.decomposition_plan})
             
             # Step 3: Allocate worker
             await self._allocate_worker_enhanced(context)
+            await self._create_task_checkpoint(context, "Worker allocated",
+                                             {"worker_id": context.worker_id})
             
             # Step 4: Execute with monitoring
             await self._execute_task_enhanced(context)
+            await self._create_task_checkpoint(context, "Task execution completed",
+                                             {"execution_result": context.metadata.get("execution_result")})
             
             # Step 5: Validate results
             await self._validate_task_results(context, validation_level)
+            await self._create_task_checkpoint(context, "Validation completed",
+                                             {"validation_result": context.metadata.get("validation_result")})
             
             # Step 6: Optimize if needed
             if auto_optimize and not context.evaluation_cycles:
                 await self._optimize_task_results(context)
+                await self._create_task_checkpoint(context, "Optimization completed",
+                                                 {"optimization_cycles": len(context.evaluation_cycles)})
             
             # Mark as completed
             context.status = EnhancedTaskStatus.COMPLETED
@@ -239,6 +305,15 @@ class EnhancedClaudeOrchestrator:
             context.metadata["error"] = str(e)
             
             self._update_metrics(context, success=False)
+            
+            # Attempt rollback if enabled and checkpoint exists
+            if context.rollback_on_failure and context.last_stable_checkpoint:
+                try:
+                    rollback_reason = self._determine_rollback_reason(e)
+                    await self._perform_task_rollback(context, rollback_reason)
+                except Exception as rollback_error:
+                    logger.error(f"Rollback failed for task {task_id}: {rollback_error}")
+                    context.metadata["rollback_error"] = str(rollback_error)
             
             # Try recovery strategies
             if context.retry_count < context.max_retries:
@@ -387,6 +462,14 @@ class EnhancedClaudeOrchestrator:
         except CircuitBreakerOpenException as e:
             logger.warning(f"Circuit breaker open for worker {context.worker_id}: {e}")
             self.metrics["circuit_breaker_activations"] += 1
+            
+            # Attempt automatic rollback for circuit breaker trips
+            if context.rollback_enabled and context.last_stable_checkpoint:
+                try:
+                    await self._perform_task_rollback(context, RollbackReason.CIRCUIT_BREAKER)
+                except Exception as rollback_error:
+                    logger.error(f"Rollback failed after circuit breaker trip: {rollback_error}")
+            
             raise
         
         except Exception as e:
@@ -579,6 +662,16 @@ class EnhancedClaudeOrchestrator:
             trace_analytics = self.execution_tracer.get_trace_analytics()
             evaluation_analytics = self.evaluator_optimizer.get_system_analytics()
             
+            # Get rollback metrics
+            rollback_history = self.rollback_manager.get_rollback_history()
+            rollback_metrics = {
+                "total_rollbacks": len(rollback_history),
+                "successful_rollbacks": self.metrics.get("successful_rollbacks", 0),
+                "failed_rollbacks": self.metrics.get("failed_rollbacks", 0),
+                "rollback_enabled_tasks": sum(1 for task in self.active_tasks.values() if task.rollback_enabled),
+                "total_checkpoints_created": sum(len(task.rollback_checkpoints) for task in self.completed_tasks)
+            }
+            
             return {
                 "orchestrator_metrics": self.metrics,
                 "active_tasks": len(self.active_tasks),
@@ -586,6 +679,7 @@ class EnhancedClaudeOrchestrator:
                 "worker_status": worker_status,
                 "circuit_breakers": circuit_breaker_status,
                 "checkpoints": checkpoint_status,
+                "rollback_system": rollback_metrics,
                 "execution_traces": trace_analytics,
                 "evaluation_system": evaluation_analytics,
                 "configuration": {
@@ -593,7 +687,8 @@ class EnhancedClaudeOrchestrator:
                     "worker_timeout": self.config.worker_timeout,
                     "validation_enabled": True,
                     "optimization_enabled": True,
-                    "decomposition_enabled": True
+                    "decomposition_enabled": True,
+                    "rollback_enabled": True
                 }
             }
     
@@ -662,6 +757,178 @@ class EnhancedClaudeOrchestrator:
                 successful_results.append(result)
         
         return successful_results
+    
+    async def _create_task_checkpoint(self, context: EnhancedTaskContext, 
+                                    step_description: str, 
+                                    data: Dict[str, Any] = None) -> Optional[str]:
+        """Create a checkpoint for the task with rollback metadata"""
+        if not context.rollback_enabled:
+            return None
+        
+        try:
+            checkpoint_id = self.rollback_manager.create_checkpoint(
+                task_id=context.task_id,
+                task_title=context.original_task.title,
+                step_number=len(context.rollback_checkpoints) + 1,
+                step_description=step_description,
+                data=data or {},
+                metadata={
+                    "worker_id": context.worker_id,
+                    "task_status": context.status.value,
+                    "component_type": ComponentType.TASK_STATE.value,
+                    "retry_count": context.retry_count
+                }
+            )
+            
+            context.rollback_checkpoints.append(checkpoint_id)
+            context.last_stable_checkpoint = checkpoint_id
+            
+            logger.debug(f"Created checkpoint {checkpoint_id} for task {context.task_id}: {step_description}")
+            return checkpoint_id
+            
+        except Exception as e:
+            logger.error(f"Failed to create checkpoint for task {context.task_id}: {e}")
+            return None
+    
+    def _determine_rollback_reason(self, error: Exception) -> RollbackReason:
+        """Determine the appropriate rollback reason based on error type"""
+        if isinstance(error, CircuitBreakerOpenException):
+            return RollbackReason.CIRCUIT_BREAKER
+        elif isinstance(error, ValidationError) if 'ValidationError' in globals() else False:
+            return RollbackReason.VALIDATION_FAILURE
+        elif isinstance(error, TimeoutError):
+            return RollbackReason.TIMEOUT
+        else:
+            return RollbackReason.ERROR
+    
+    async def _perform_task_rollback(self, context: EnhancedTaskContext, 
+                                   reason: RollbackReason) -> bool:
+        """Perform rollback for a failed task"""
+        if not context.last_stable_checkpoint:
+            logger.warning(f"No checkpoint available for rollback of task {context.task_id}")
+            return False
+        
+        try:
+            # Determine rollback scope based on failure type
+            scope = self._determine_rollback_scope(context, reason)
+            
+            # Create rollback plan
+            plan = self.rollback_strategy_manager.create_rollback_plan(scope)
+            
+            # Execute rollback
+            success, results = self.rollback_strategy_manager.execute_rollback(plan)
+            
+            if success:
+                logger.info(f"Successfully rolled back task {context.task_id} to checkpoint "
+                          f"{context.last_stable_checkpoint}")
+                context.metadata["rollback_successful"] = True
+                context.metadata["rollback_results"] = results
+                
+                # Update metrics
+                self.metrics["successful_rollbacks"] = self.metrics.get("successful_rollbacks", 0) + 1
+            else:
+                logger.error(f"Rollback failed for task {context.task_id}: {results}")
+                context.metadata["rollback_successful"] = False
+                context.metadata["rollback_results"] = results
+                
+                # Update metrics
+                self.metrics["failed_rollbacks"] = self.metrics.get("failed_rollbacks", 0) + 1
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Exception during rollback for task {context.task_id}: {e}")
+            return False
+    
+    def _determine_rollback_scope(self, context: EnhancedTaskContext, 
+                                reason: RollbackReason) -> RollbackScope:
+        """Determine the appropriate rollback scope based on context and reason"""
+        # For circuit breaker trips, rollback the worker state
+        if reason == RollbackReason.CIRCUIT_BREAKER:
+            return create_rollback_scope(
+                strategy_type=RollbackStrategyType.PARTIAL,
+                components=["worker_state", "task_state"],
+                task_ids=[context.task_id]
+            )
+        
+        # For validation failures, selective rollback of the task
+        elif reason == RollbackReason.VALIDATION_FAILURE:
+            return RollbackScope(
+                strategy_type=RollbackStrategyType.SELECTIVE,
+                task_ids={context.task_id}
+            )
+        
+        # For general errors, partial rollback
+        else:
+            return create_rollback_scope(
+                strategy_type=RollbackStrategyType.PARTIAL,
+                components=["task_state"],
+                task_ids=[context.task_id]
+            )
+    
+    async def manual_rollback_task(self, task_id: str, 
+                                 checkpoint_id: Optional[str] = None) -> bool:
+        """Manually trigger rollback for a task"""
+        context = None
+        
+        # Check active tasks first
+        if task_id in self.active_tasks:
+            context = self.active_tasks[task_id]
+        else:
+            # Check completed tasks
+            for task in self.completed_tasks:
+                if task.task_id == task_id:
+                    context = task
+                    break
+        
+        if not context:
+            logger.error(f"Task {task_id} not found for rollback")
+            return False
+        
+        # Use specified checkpoint or last stable one
+        target_checkpoint = checkpoint_id or context.last_stable_checkpoint
+        
+        if not target_checkpoint:
+            logger.error(f"No checkpoint available for task {task_id}")
+            return False
+        
+        try:
+            success, data = self.rollback_manager.restore_checkpoint(
+                checkpoint_id=target_checkpoint,
+                reason=RollbackReason.MANUAL
+            )
+            
+            if success:
+                logger.info(f"Successfully rolled back task {task_id} to checkpoint {target_checkpoint}")
+                context.metadata["manual_rollback"] = {
+                    "checkpoint_id": target_checkpoint,
+                    "timestamp": datetime.now().isoformat(),
+                    "success": True
+                }
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Manual rollback failed for task {task_id}: {e}")
+            return False
+    
+    def get_rollback_history(self, task_id: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Get rollback history for a task or all tasks"""
+        history = self.rollback_manager.get_rollback_history(task_id)
+        
+        return [
+            {
+                "rollback_id": record.rollback_id,
+                "task_id": record.task_id,
+                "checkpoint_id": record.checkpoint_id,
+                "reason": record.reason.value,
+                "status": record.status.value,
+                "initiated_at": record.initiated_at.isoformat(),
+                "completed_at": record.completed_at.isoformat() if record.completed_at else None,
+                "error_message": record.error_message
+            }
+            for record in history
+        ]
 
 
 # Global enhanced orchestrator instance
