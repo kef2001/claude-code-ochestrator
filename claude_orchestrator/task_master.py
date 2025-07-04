@@ -81,8 +81,49 @@ class Task:
     @classmethod
     def from_dict(cls, data: Dict) -> 'Task':
         """Create Task from dictionary"""
+        # Make a copy to avoid modifying the original
+        data = data.copy()
+        
+        # Handle different task formats
+        # Some tasks have 'prompt' instead of 'title' and 'description'
+        if 'prompt' in data and 'title' not in data:
+            # Extract title from prompt (first line or truncated prompt)
+            prompt = data.get('prompt', '')
+            title = prompt.split('\n')[0][:100] + '...' if len(prompt) > 100 else prompt.split('\n')[0]
+            data['title'] = title
+            data['description'] = prompt
+        
+        # Handle both snake_case and camelCase field names
+        if 'created_at' in data:
+            data['createdAt'] = data.pop('created_at')
+        if 'updated_at' in data:
+            data['updatedAt'] = data.pop('updated_at')
+        if 'test_strategy' in data:
+            data['testStrategy'] = data.pop('test_strategy')
+            
         subtasks_data = data.pop('subtasks', [])
-        task = cls(**data)
+        
+        # Get valid field names from the dataclass
+        import inspect
+        valid_fields = {f.name for f in cls.__dataclass_fields__.values()}
+        
+        # Filter out any fields not in the dataclass
+        filtered_data = {k: v for k, v in data.items() if k in valid_fields}
+        
+        # Ensure required fields are present
+        if 'title' not in filtered_data:
+            raise ValueError(f"Task missing required field 'title': {data}")
+        if 'description' not in filtered_data:
+            raise ValueError(f"Task missing required field 'description': {data}")
+        if 'id' not in filtered_data:
+            raise ValueError(f"Task missing required field 'id': {data}")
+        
+        # Log any fields that were filtered out
+        extra_fields = set(data.keys()) - set(filtered_data.keys())
+        if extra_fields:
+            logger.debug(f"Ignoring extra fields in Task data: {extra_fields}")
+        
+        task = cls(**filtered_data)
         
         # Convert subtasks
         task.subtasks = []
@@ -119,7 +160,17 @@ class TaskManager:
                     data = json.load(f)
                     # Convert task dicts to Task objects
                     if 'tasks' in data:
-                        data['tasks'] = [Task.from_dict(t) if isinstance(t, dict) else t for t in data['tasks']]
+                        converted_tasks = []
+                        for i, t in enumerate(data['tasks']):
+                            try:
+                                if isinstance(t, dict):
+                                    converted_tasks.append(Task.from_dict(t))
+                                else:
+                                    converted_tasks.append(t)
+                            except Exception as task_error:
+                                logger.error(f"Error loading task at index {i}: {task_error}")
+                                logger.debug(f"Problematic task data: {t}")
+                        data['tasks'] = converted_tasks
                     return data
             except Exception as e:
                 logger.error(f"Error loading tasks: {e}")
@@ -278,11 +329,23 @@ class TaskManager:
         if not ready_tasks:
             return None
         
-        # Sort by priority (high > medium > low) and ID
-        priority_order = {"high": 3, "medium": 2, "low": 1}
-        ready_tasks.sort(key=lambda t: (-priority_order.get(t.priority, 2), t.id))
+        # Separate Opus feedback tasks and regular tasks
+        opus_tasks = [t for t in ready_tasks if self.is_opus_feedback_task(t)]
+        regular_tasks = [t for t in ready_tasks if not self.is_opus_feedback_task(t)]
         
-        return ready_tasks[0]
+        # Sort Opus tasks by priority and ID
+        priority_order = {"high": 3, "medium": 2, "low": 1}
+        if opus_tasks:
+            # Convert ID to string for consistent sorting
+            opus_tasks.sort(key=lambda t: (-priority_order.get(t.priority, 2), str(t.id)))
+            logger.info(f"Prioritizing Opus feedback task: {opus_tasks[0].id} - {opus_tasks[0].title[:50]}...")
+            return opus_tasks[0]
+        
+        # If no Opus tasks, sort regular tasks by priority and ID
+        # Convert ID to string for consistent sorting
+        regular_tasks.sort(key=lambda t: (-priority_order.get(t.priority, 2), str(t.id)))
+        
+        return regular_tasks[0] if regular_tasks else None
     
     def get_task_subtask_progress(self, task_id: str) -> Tuple[int, int]:
         """Get subtask progress for a task (completed, total)"""
@@ -331,3 +394,34 @@ class TaskManager:
             if int(task_id) in task.dependencies:
                 dependent_tasks.append(task)
         return dependent_tasks
+    
+    def is_opus_feedback_task(self, task: Task) -> bool:
+        """Check if a task is from Opus feedback"""
+        # Check tags for followup indicators
+        if hasattr(task, 'tags') and task.tags:
+            for tag in task.tags:
+                if 'followup' in str(tag).lower() or 'follow-up' in str(tag).lower():
+                    return True
+        
+        # Check title for follow-up pattern
+        if hasattr(task, 'title') and task.title:
+            title_lower = task.title.lower()
+            if 'follow-up' in title_lower or 'followup' in title_lower:
+                return True
+                
+        # Check metadata for opus review
+        if hasattr(task, 'metadata') and isinstance(task.metadata, dict):
+            if task.metadata.get('created_by') == 'opus-manager-review':
+                return True
+                
+        return False
+    
+    def get_opus_feedback_tasks(self, status: Optional[str] = None) -> List[Task]:
+        """Get all Opus feedback tasks, optionally filtered by status"""
+        tasks = self.get_all_tasks()
+        opus_tasks = [t for t in tasks if self.is_opus_feedback_task(t)]
+        
+        if status:
+            opus_tasks = [t for t in opus_tasks if t.status == status]
+            
+        return opus_tasks

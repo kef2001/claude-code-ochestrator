@@ -43,6 +43,11 @@ Thumbs.db
 .env
 *.log
 .taskmaster/tasks/*_backup.json
+.taskmaster/tasks/tasks.json.backup*
 .taskmaster/logs/
 .claude/
 claude-task-master/
+archive/
+*.backup
+*.original
+*.tmp

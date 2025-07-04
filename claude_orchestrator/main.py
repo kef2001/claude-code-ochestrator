@@ -22,6 +22,10 @@ import shlex
 from pathlib import Path
 import re
 import time
+# Enhanced UI imports
+from .enhanced_progress_display import EnhancedProgressDisplay, WorkerState
+from .progress_display_integration import ProgressDisplay as EnhancedProgressWrapper
+
 from datetime import timedelta
 
 # Import native Task Master
@@ -58,7 +62,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class ProgressDisplay:
+# Original ProgressDisplay replaced with Enhanced UI
+# To restore original, rename ProgressDisplay_Original back to ProgressDisplay
+class ProgressDisplay_Original:
     """Handles real-time progress display with carriage return"""
     
     def __init__(self, total_tasks: int = 0):
@@ -366,6 +372,9 @@ class LegacyConfig:
         self.usage_critical_threshold = monitor_config.get("usage_critical_threshold", 0.95)
 
 
+# Use Enhanced UI as default
+ProgressDisplay = EnhancedProgressWrapper
+
 class TaskStatus(Enum):
     PENDING = "pending"
     IN_PROGRESS = "in-progress"
@@ -393,7 +402,7 @@ class WorkerTask:
             self.dependencies = []
 
 
-import requests
+# import requests  # Temporarily disabled for task creation
 
 class SlackNotificationManager:
     """Manages Slack notifications for the orchestrator"""
@@ -1151,6 +1160,42 @@ class ClaudeOrchestrator:
         
         logger.info(f"Created {worker_count} Sonnet workers for {task_count or 'unknown'} tasks")
     
+    def _check_and_delegate_new_tasks(self):
+        """Check for newly available tasks and delegate them"""
+        try:
+            # Get fresh task list from TaskMaster
+            all_tasks = self.manager.analyze_and_plan()
+            
+            # Track current task IDs
+            all_task_ids = (
+                set(self.manager.completed_tasks.keys()) |
+                set(self.manager.failed_tasks.keys()) |
+                set(self.manager.active_tasks.keys()) |
+                {t.task_id for t in list(self.manager.task_queue.queue)}
+            )
+            
+            # Check each task
+            for task in all_tasks:
+                # Skip if already processed or in queue
+                if task.task_id in all_task_ids:
+                    continue
+                
+                # Check if dependencies are satisfied
+                deps_completed = all(
+                    dep in self.manager.completed_tasks 
+                    for dep in task.dependencies
+                )
+                
+                if deps_completed:
+                    logger.info(f"New task available: {task.task_id} - {task.title}, delegating...")
+                    self.manager.delegate_task(task)
+                    if self.use_progress_display and self.progress:
+                        self.progress.total_tasks += 1
+                        self.progress.log_message(f"New task discovered: {task.task_id} - {task.title}", "INFO")
+                        
+        except Exception as e:
+            logger.error(f"Error checking for new tasks: {e}")
+    
     def review_loop(self):
         """Loop that processes Opus reviews in parallel"""
         logger.info("Review loop started")
@@ -1216,8 +1261,16 @@ class ClaudeOrchestrator:
                 
                 # Update progress display
                 if self.use_progress_display and self.progress:
+                    # Update task counts first
                     self.progress.active = len(self.manager.active_tasks)
-                    self.progress.set_worker_task(worker.worker_id, task.task_id, task.title)
+                    
+                    # Set worker task with proper formatting
+                    task_display = task.title[:50] if len(task.title) > 50 else task.title
+                    self.progress.set_worker_task(worker.worker_id, task.task_id, task_display)
+                    
+                    # Log task start
+                    self.progress.log_message(f"Worker {worker.worker_id} started: {task_display}", "INFO")
+                    
                     self.progress.update()
                 
                 # Process task
@@ -1230,10 +1283,16 @@ class ClaudeOrchestrator:
                     # First mark as completed
                     self.manager.completed_tasks[task.task_id] = completed_task
                     if self.use_progress_display and self.progress:
+                        # Update counts
                         self.progress.completed += 1
                         self.progress.active = len(self.manager.active_tasks)
+                        
+                        # Clear worker task
                         self.progress.clear_worker_task(worker.worker_id)
-                        self.progress.log_message(f"✅ Task {task.task_id} completed: {task.title[:40]}...", "SUCCESS")
+                        
+                        # Log completion
+                        task_display = task.title[:40] if len(task.title) > 40 else task.title
+                        self.progress.log_message(f"✅ Task {task.task_id} completed: {task_display}", "SUCCESS")
                     
                     # Submit task for Opus review
                     self.review_queue.put(completed_task)
@@ -1246,10 +1305,19 @@ class ClaudeOrchestrator:
                 else:
                     self.manager.failed_tasks[task.task_id] = completed_task
                     if self.use_progress_display and self.progress:
+                        # Update counts
                         self.progress.failed += 1
                         self.progress.active = len(self.manager.active_tasks)
+                        
+                        # Clear worker task
                         self.progress.clear_worker_task(worker.worker_id)
-                        self.progress.log_message(f"❌ Task {task.task_id} failed: {task.title[:40]}...", "ERROR")
+                        
+                        # Log failure
+                        task_display = task.title[:40] if len(task.title) > 40 else task.title
+                        error_msg = completed_task.error[:50] if completed_task.error and len(completed_task.error) > 50 else completed_task.error
+                        self.progress.log_message(f"❌ Task {task.task_id} failed: {task_display}", "ERROR")
+                        if error_msg:
+                            self.progress.log_message(f"   Error: {error_msg}", "ERROR")
                     
                     # Send Slack notification for failed task
                     if self.config.notify_on_task_failed:
@@ -1265,6 +1333,9 @@ class ClaudeOrchestrator:
                 
                 # Mark task queue item as done
                 self.manager.task_queue.task_done()
+                
+                # Immediately check for new tasks that may have become available
+                self._check_and_delegate_new_tasks()
                 
             except queue.Empty:
                 # No tasks available, continue waiting
@@ -1347,7 +1418,7 @@ class ClaudeOrchestrator:
                     logger.debug(f"Task {task.task_id} waiting for dependencies: {task.dependencies}")
             
             # Monitor progress
-            monitor_interval = self.config.progress_interval
+            monitor_interval = min(5, self.config.progress_interval)  # Check at least every 5 seconds
             last_monitor = datetime.now()
             last_progress_update = time.time()
             
@@ -1356,13 +1427,26 @@ class ClaudeOrchestrator:
                 if self.use_progress_display and self.progress:
                     current_time = time.time()
                     if current_time - last_progress_update > 0.1:  # Update every 100ms
+                        # Update task counts
+                        completed_count = len(self.manager.completed_tasks)
+                        active_count = len(self.manager.active_tasks)
+                        failed_count = len(self.manager.failed_tasks)
+                        
+                        # Update progress totals
+                        self.progress.update_totals(completed_count, active_count, failed_count)
+                        
+                        # Update queue status
+                        queue_size = self.manager.task_queue.qsize()
+                        review_queue_size = self.review_queue.qsize()
+                        self.progress.display.update_queue_status(queue_size, review_queue_size)
+                        
                         # Update subtask progress for active tasks
                         for task_id, task in self.manager.active_tasks.items():
                             completed, total = self.task_master.get_task_subtask_progress(task_id)
                             if total > 0:
                                 self.progress.set_task_subtasks(task_id, completed, total)
                         
-                        # Progress now handles multi-task display internally
+                        # Update display
                         self.progress.update()
                         last_progress_update = current_time
                 
@@ -1511,7 +1595,8 @@ class ClaudeOrchestrator:
         
         # Final progress display if enabled
         if self.use_progress_display and self.progress:
-            self.progress.finish()
+            # ProgressDisplay doesn't have finish method, just update one last time
+            self.progress.update()
         
         # Perform final Opus review if enabled
         if self.config.enable_opus_review and self.manager.completed_tasks:
