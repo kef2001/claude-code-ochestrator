@@ -29,13 +29,20 @@ class ClaudeDirectAPI:
     def __init__(self, model: str = "claude-3-5-sonnet-20241022"):
         self.model = model
         self.total_tokens_used = 0
-        # Import inline executor
+        # Import enhanced inline executor
         try:
-            from .inline_executor import get_executor
-            self.executor = get_executor()
+            from .enhanced_inline_executor import get_enhanced_executor
+            self.executor = get_enhanced_executor()
+            logger.info("Using enhanced inline executor that creates actual files")
         except ImportError:
-            logger.warning("Inline executor not available")
-            self.executor = None
+            # Fall back to original inline executor
+            try:
+                from .inline_executor import get_executor
+                self.executor = get_executor()
+                logger.warning("Using original inline executor (files won't be created)")
+            except ImportError:
+                logger.warning("No inline executor available")
+                self.executor = None
         
     def execute_with_tools(self, prompt: str, allowed_tools: Optional[list] = None) -> ClaudeResponse:
         """Execute a task inline in the current session"""

@@ -49,6 +49,20 @@ class DatabaseFeedbackStorage(FeedbackStorageInterface):
         self.table_prefix = table_prefix
         self.pool = DatabaseConnectionPool(connection_string)
         
+        # If SQLite implementation is available, use it
+        if connection_string.startswith("sqlite"):
+            try:
+                from .sqlite_feedback_storage import SQLiteFeedbackStorage
+                # Extract database path from connection string
+                db_path = connection_string.replace("sqlite:///", "")
+                self._backend = SQLiteFeedbackStorage(db_path)
+                logger.info("Using SQLite implementation for database storage")
+                return
+            except ImportError:
+                pass
+        
+        self._backend = None
+        
         # Initialize database schema (stub)
         self._initialize_schema()
         
@@ -108,11 +122,14 @@ class DatabaseFeedbackStorage(FeedbackStorageInterface):
         """
     
     def save(self, feedback: FeedbackModel) -> None:
-        """Save feedback to database (stub).
+        """Save feedback to database.
         
         Args:
             feedback: Feedback model to save
         """
+        if self._backend:
+            return self._backend.save(feedback)
+            
         # Validate feedback
         feedback.validate()
         
@@ -128,7 +145,7 @@ class DatabaseFeedbackStorage(FeedbackStorageInterface):
         logger.info(f"Saving feedback {feedback.feedback_id} to database (stub)")
     
     def load(self, feedback_id: str) -> Optional[FeedbackModel]:
-        """Load feedback from database (stub).
+        """Load feedback from database.
         
         Args:
             feedback_id: ID of feedback to load
@@ -136,6 +153,9 @@ class DatabaseFeedbackStorage(FeedbackStorageInterface):
         Returns:
             FeedbackModel if found, None otherwise
         """
+        if self._backend:
+            return self._backend.load(feedback_id)
+            
         # In a real implementation, this would:
         # 1. Get connection from pool
         # 2. Query feedback table with JOIN on context and metrics
@@ -171,6 +191,17 @@ class DatabaseFeedbackStorage(FeedbackStorageInterface):
         # 3. Construct FeedbackModel instances from results
         # 4. Apply limit if specified
         
+        if self._backend:
+            return self._backend.query(
+                task_id=task_id,
+                worker_id=worker_id,
+                feedback_type=feedback_type,
+                severity=severity,
+                start_time=start_time,
+                end_time=end_time,
+                limit=limit
+            )
+            
         logger.info("Querying feedback from database (stub)")
         return []
     
@@ -190,11 +221,17 @@ class DatabaseFeedbackStorage(FeedbackStorageInterface):
         # 4. Commit transaction
         # 5. Release connection
         
+        if self._backend:
+            return self._backend.delete(feedback_id)
+            
         logger.info(f"Deleting feedback {feedback_id} from database (stub)")
         return True
     
     def clear(self) -> None:
-        """Clear all feedback from database (stub)."""
+        """Clear all feedback from database."""
+        if self._backend:
+            return self._backend.clear()
+            
         # In a real implementation, this would:
         # 1. Get connection from pool
         # 2. TRUNCATE all feedback tables
@@ -203,11 +240,14 @@ class DatabaseFeedbackStorage(FeedbackStorageInterface):
         logger.info("Clearing all feedback from database (stub)")
     
     def count(self) -> int:
-        """Count total feedback entries (stub).
+        """Count total feedback entries.
         
         Returns:
             Total number of feedback entries
         """
+        if self._backend:
+            return self._backend.count()
+            
         # In a real implementation, this would:
         # SELECT COUNT(*) FROM feedback
         

@@ -312,6 +312,33 @@ class JSONFeedbackStorage(FeedbackStorageInterface):
         return total_size
 
 
+def create_feedback_storage(storage_type: str = "json", **kwargs) -> FeedbackStorageInterface:
+    """Factory function to create feedback storage backend.
+    
+    Args:
+        storage_type: Type of storage backend ("json" or "sqlite")
+        **kwargs: Additional arguments for storage backend
+        
+    Returns:
+        FeedbackStorageInterface instance
+    """
+    if storage_type == "json":
+        storage_path = kwargs.get("storage_path", ".feedback")
+        return JSONFeedbackStorage(storage_path)
+    elif storage_type == "sqlite":
+        try:
+            from .sqlite_feedback_storage import SQLiteFeedbackStorage
+            db_path = kwargs.get("db_path", ".feedback/feedback.db")
+            backend = SQLiteFeedbackStorage(db_path)
+            # Return the backend directly since FeedbackStorage expects a backend
+            return backend
+        except ImportError:
+            logger.warning("SQLite feedback storage not available, falling back to JSON")
+            return JSONFeedbackStorage(kwargs.get("storage_path", ".feedback"))
+    else:
+        raise ValueError(f"Unknown storage type: {storage_type}")
+
+
 class FeedbackStorage:
     """Main feedback storage class with caching and optimization."""
     
