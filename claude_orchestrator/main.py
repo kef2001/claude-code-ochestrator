@@ -1289,6 +1289,16 @@ class ClaudeOrchestrator:
             except Exception as e:
                 logger.warning(f"Failed to initialize plan validator: {e}")
         
+        # Initialize test execution validator
+        self.test_validator = None
+        if hasattr(config, 'validate_execution') and config.validate_execution:
+            try:
+                from .test_execution_validator import integrate_test_validation
+                self.test_validator = integrate_test_validation(self)
+                logger.info("Test execution validator initialized")
+            except Exception as e:
+                logger.warning(f"Failed to initialize test execution validator: {e}")
+        
         # Initialize review integration
         from .review_applier import ReviewApplierIntegration
         self.review_integration = ReviewApplierIntegration(self.working_dir)
