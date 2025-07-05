@@ -281,6 +281,12 @@ def create_default_agents(agent_registry: AgentRegistry):
     Args:
         agent_registry: Registry to add agents to
     """
+    # Import reviewer agents
+    from .reviewer_agent import (
+        create_reviewer_agent, create_output_analysis_reviewer,
+        ReviewType
+    )
+    
     # Create code generation agents
     python_dev = create_code_generation_agent(
         agent_id="python_dev_001",
@@ -303,6 +309,27 @@ def create_default_agents(agent_registry: AgentRegistry):
     )
     agent_registry.register_agent(reviewer)
     
+    # Create advanced reviewer agents
+    quality_reviewer = create_reviewer_agent(
+        agent_id="quality_reviewer_001",
+        name="Quality Assurance Reviewer",
+        review_types=[ReviewType.CODE_QUALITY, ReviewType.DOCUMENTATION, ReviewType.TESTING]
+    )
+    agent_registry.register_agent(quality_reviewer)
+    
+    security_reviewer = create_reviewer_agent(
+        agent_id="security_reviewer_001",
+        name="Security Reviewer",
+        review_types=[ReviewType.SECURITY, ReviewType.COMPLIANCE]
+    )
+    agent_registry.register_agent(security_reviewer)
+    
+    output_analyzer = create_output_analysis_reviewer(
+        agent_id="output_analyzer_001",
+        name="Output Analysis Specialist"
+    )
+    agent_registry.register_agent(output_analyzer)
+    
     # Create testing agents
     unit_tester = create_testing_agent(
         agent_id="unit_tester_001",
@@ -318,7 +345,7 @@ def create_default_agents(agent_registry: AgentRegistry):
     )
     agent_registry.register_agent(integration_tester)
     
-    logger.info("Created default specialized agents")
+    logger.info("Created default specialized agents including advanced reviewers")
 
 
 async def integrate_specialized_agents(orchestrator) -> SpecializedAgentRouter:

@@ -1278,6 +1278,17 @@ class ClaudeOrchestrator:
             except Exception as e:
                 logger.warning(f"Failed to initialize interactive feedback: {e}")
         
+        # Initialize plan validator
+        self.plan_validator = None
+        if hasattr(config, 'validation') and config.validation.get('enabled', True):
+            try:
+                from .plan_validator import integrate_plan_validation
+                strict_mode = config.validation.get('strict_mode', False)
+                self.plan_validator = integrate_plan_validation(self, strict_mode)
+                logger.info(f"Plan validator initialized (strict_mode={strict_mode})")
+            except Exception as e:
+                logger.warning(f"Failed to initialize plan validator: {e}")
+        
         # Initialize review integration
         from .review_applier import ReviewApplierIntegration
         self.review_integration = ReviewApplierIntegration(self.working_dir)

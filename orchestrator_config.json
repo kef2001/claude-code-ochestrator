@@ -99,6 +99,15 @@
     "request_review_for_critical": true,
     "decision_points_enabled": true
   },
+  "validation": {
+    "enabled": true,
+    "strict_mode": false,
+    "validate_dependencies": true,
+    "validate_resources": true,
+    "validate_security": true,
+    "max_plan_size": 100,
+    "max_dependency_depth": 5
+  },
   "allowed_tools": [
     "create_file",
     "edit_file",
