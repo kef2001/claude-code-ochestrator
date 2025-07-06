@@ -131,12 +131,20 @@ class ClaudeOrchestrator:
         # Import here to avoid circular imports
         from .main import OpusManager, SonnetWorker, SlackNotificationManager
         
+        # Store classes for later use
+        self.SonnetWorker = SonnetWorker
+        
         self.config = config
         # Add execution validation flag if not present
         if not hasattr(self.config, 'validate_execution'):
             self.config.validate_execution = True
         self.working_dir = os.path.abspath(working_dir) if working_dir else os.getcwd()
+        # Create TaskMasterInterface and share it
+        from .main import TaskMasterInterface as MainTaskMasterInterface
+        self.main_task_master = MainTaskMasterInterface()
         self.manager = OpusManager(config)
+        # Share the task master interface
+        self.manager.task_master = self.main_task_master
         self.workers: List[SonnetWorker] = []
         self.max_workers = config.max_workers
         self.executor = ThreadPoolExecutor(max_workers=config.max_workers)
@@ -252,8 +260,9 @@ class ClaudeOrchestrator:
         
         # Create workers
         for i in range(worker_count):
-            worker = SonnetWorker(i, self.working_dir, self.config)
+            worker = self.SonnetWorker(i, self.working_dir, self.config)
             worker.orchestrator = self  # Set reference to orchestrator
+            worker.task_master = self.main_task_master  # Share task master
             self.workers.append(worker)
         
         logger.info(f"Created {worker_count} Sonnet workers for {task_count or 'unknown'} tasks")

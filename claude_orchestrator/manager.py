@@ -26,7 +26,7 @@ from typing import Dict, List, Optional
 from datetime import datetime
 
 from .models import TaskStatus, WorkerTask
-from .orchestrator import TaskMasterInterface
+# TaskMasterInterface will be injected by orchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class OpusManager:
         if not hasattr(self.config, 'validate_execution'):
             self.config.validate_execution = True
         self.max_workers = config.max_workers
-        self.task_master = TaskMasterInterface()
+        self.task_master = None  # Will be set by orchestrator
         self.task_queue: queue.Queue[WorkerTask] = queue.Queue()
         self.completed_tasks: Dict[str, WorkerTask] = {}
         self.failed_tasks: Dict[str, WorkerTask] = {}

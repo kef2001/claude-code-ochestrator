@@ -27,7 +27,7 @@ import time
 from typing import Optional, Dict, Any
 
 from .models import TaskStatus, WorkerTask
-from .orchestrator import TaskMasterInterface
+# TaskMasterInterface will be provided by orchestrator
 
 # Import direct Claude API
 try:
@@ -64,6 +64,8 @@ class SonnetWorker:
         self.session_tokens_used = 0
         # Reference to orchestrator (set by orchestrator)
         self.orchestrator = None
+        # Task master interface (set by orchestrator)
+        self.task_master = None
         
         # Initialize error handler
         self.error_handler = None
