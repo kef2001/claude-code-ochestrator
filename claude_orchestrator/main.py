@@ -273,6 +273,16 @@ def create_config(config_path: Optional[str] = None) -> EnhancedConfig:
 ProgressDisplay = EnhancedProgressWrapper
 
 from .slack_notifier import SlackNotificationManager
+
+# Note: Removed orphaned class methods that were misplaced
+
+from .manager import OpusManager
+from .worker import SonnetWorker
+from .orchestrator import ClaudeOrchestrator
+
+
+class TaskMasterInterface:
+    """Interface to interact with native Task Master"""
     
     def __init__(self):
         self.task_manager = TaskManager()
@@ -372,44 +382,26 @@ from .slack_notifier import SlackNotificationManager
         self._subtask_cache[task_id] = (time.time(), result)
         return result
     
-    def add_task(self, title: str, description: str, **kwargs) -> Optional[Dict[str, Any]]:
-        """Add a new task"""
-        task = self.task_manager.add_task(title, description, **kwargs)
-        if task:
-            return {
+    def parse_prd(self, prd_content: str, auto_add: bool = True) -> List[Dict[str, Any]]:
+        """Parse PRD content and create tasks"""
+        try:
+            tasks = self.task_ai.parse_prd(prd_content, auto_add=auto_add)
+            return [{
                 'id': str(task.id),
                 'title': task.title,
                 'description': task.description,
                 'status': task.status,
-                'priority': task.priority
-            }
-        return None
+                'priority': task.priority,
+                'dependencies': task.dependencies,
+                'details': task.details
+            } for task in tasks]
+        except Exception as e:
+            logger.error(f"Error parsing PRD: {e}")
+            return []
     
-    def expand_task(self, task_id: str, num_subtasks: int = 5, use_research: bool = False) -> List[Dict[str, Any]]:
-        """Expand a task into subtasks using AI"""
-        subtasks = self.task_ai.expand_task(task_id, num_subtasks, use_research)
-        return [{
-            'id': f"{task_id}.{st.id}",
-            'title': st.title,
-            'description': st.description,
-            'status': st.status
-        } for st in subtasks]
-    
-    def parse_prd(self, prd_content: str, auto_add: bool = True) -> List[Dict[str, Any]]:
-        """Parse PRD and create tasks"""
-        tasks = self.task_ai.parse_prd(prd_content, auto_add)
-        return [{
-            'id': str(task.id),
-            'title': task.title,
-            'description': task.description,
-            'status': task.status,
-            'priority': task.priority
-        } for task in tasks]
-
-
-from .manager import OpusManager
-from .worker import SonnetWorker
-from .orchestrator import ClaudeOrchestrator
+    def complete_task(self, task_id: str) -> bool:
+        """Mark a task as completed"""
+        return self.task_manager.update_task_status(task_id, 'done')
 
 
 def opus_add_task(description: str, config, task_interface: Optional[TaskMasterInterface] = None) -> bool:

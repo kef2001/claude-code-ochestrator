@@ -14,10 +14,20 @@ A powerful task orchestration system that uses Claude Opus as a manager and mult
 - **Git Integration**: Auto-commit changes after task completion (optional)
 - **Task Master Integration**: Built-in task management system with AI-powered task expansion
 
+## Architecture
+
+The orchestrator follows a modular architecture:
+
+- **Orchestrator** (`orchestrator.py`): Main coordination logic
+- **OpusManager** (`manager.py`): Task planning and delegation using Claude Opus
+- **SonnetWorker** (`worker.py`): Task execution using Claude Sonnet
+- **Models** (`models.py`): Data models (TaskStatus, WorkerTask)
+- **Configuration** (`config_manager.py`): Advanced configuration management
+- **Progress Display** (`enhanced_progress_display.py`): Real-time UI
+
 ## Requirements
 
 - Python 3.10+
-- [uv](https://github.com/astral-sh/uv) (for dependency management)
 - [Claude CLI](https://docs.anthropic.com/en/docs/claude-cli) installed and authenticated
 - Anthropic API key
 
@@ -36,10 +46,12 @@ git clone https://github.com/yourusername/claude-code-orchestrator.git
 cd claude-code-orchestrator
 ```
 
-### 3. Install the orchestrator
+### 3. Set up virtual environment and install
 
 ```bash
-uv pip install -e .
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -e .
 ```
 
 ### 4. Initialize a new project

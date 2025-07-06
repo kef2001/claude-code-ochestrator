@@ -1,6 +1,22 @@
 #!/usr/bin/env python3
-"""
-Opus Manager - Manager component using Claude Opus model
+"""Opus Manager - Manager component using Claude Opus model.
+
+This module contains the OpusManager class which uses the Claude Opus model
+to analyze tasks, create execution plans, and delegate work to Sonnet workers.
+The manager is responsible for understanding task dependencies and orchestrating
+the parallel execution of independent tasks.
+
+The OpusManager handles:
+- Task analysis and dependency resolution
+- Task prioritization and delegation
+- Progress monitoring
+- Task queue management
+
+Typical usage example:
+    manager = OpusManager(config)
+    tasks = manager.analyze_and_plan()
+    for task in tasks:
+        manager.delegate_task(task)
 """
 
 import sys

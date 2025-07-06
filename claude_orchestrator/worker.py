@@ -1,6 +1,20 @@
 #!/usr/bin/env python3
-"""
-Sonnet Worker - Worker component using Claude Sonnet model
+"""Sonnet Worker - Worker component using Claude Sonnet model.
+
+This module contains the SonnetWorker class which uses the Claude Sonnet model
+to execute individual tasks. Workers receive tasks from the queue, process them
+using Claude's capabilities, and return results to the orchestrator.
+
+The SonnetWorker handles:
+- Task execution using Claude CLI or direct API
+- Error handling and retry logic
+- Progress tracking and reporting
+- Token usage monitoring
+
+Typical usage example:
+    worker = SonnetWorker(worker_id=0, working_dir='/path/to/project', config=config)
+    task = WorkerTask(task_id='123', title='Implement feature', description='...')
+    result = worker.process_task(task)
 """
 
 import os

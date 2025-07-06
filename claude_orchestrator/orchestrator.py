@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
-"""
-Claude Orchestrator - Main orchestrator coordinating Opus manager and Sonnet workers
+"""Claude Orchestrator - Main orchestrator coordinating Opus manager and Sonnet workers.
+
+This module contains the main orchestration logic that coordinates between the
+Opus manager (for task planning and review) and Sonnet workers (for task execution).
+It manages the entire task execution lifecycle including initialization, delegation,
+monitoring, and review.
+
+Typical usage example:
+    config = create_config('orchestrator_config.json')
+    orchestrator = ClaudeOrchestrator(config, working_dir='/path/to/project')
+    orchestrator.run()
 """
 
 import asyncio
@@ -47,7 +56,7 @@ class TaskMasterInterface:
     def _initialize_task_manager(self):
         """Initialize the Task Master if available"""
         try:
-            self.task_manager = TaskManager(lazy_load=True)
+            self.task_manager = TaskManager()
             logger.info("Task Master integration initialized")
         except Exception as e:
             logger.warning(f"Task Master not available: {e}")
@@ -93,9 +102,32 @@ class TaskMasterInterface:
 
 
 class ClaudeOrchestrator:
-    """Main orchestrator coordinating Opus manager and Sonnet workers"""
+    """Main orchestrator coordinating Opus manager and Sonnet workers.
+    
+    This class manages the entire task execution pipeline, coordinating between
+    the Opus manager for planning and Sonnet workers for execution. It handles
+    parallel task processing, progress monitoring, and result aggregation.
+    
+    Attributes:
+        config: Configuration object with orchestrator settings
+        working_dir: Directory where tasks will be executed
+        manager: OpusManager instance for task planning
+        workers: List of SonnetWorker instances
+        running: Flag indicating if orchestrator is running
+        progress: Progress display instance for UI updates
+    """
     
     def __init__(self, config: EnhancedConfig, working_dir: Optional[str] = None):
+        """Initialize the orchestrator with configuration and working directory.
+        
+        Args:
+            config: EnhancedConfig instance with all orchestrator settings
+            working_dir: Optional directory path for task execution. If not provided,
+                        uses current working directory
+        
+        Raises:
+            ValueError: If working directory does not exist
+        """
         # Import here to avoid circular imports
         from .main import OpusManager, SonnetWorker, SlackNotificationManager
         
