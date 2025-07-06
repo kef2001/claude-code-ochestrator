@@ -1222,61 +1222,93 @@ class ClaudeOrchestrator:
         self.test_monitor_integration = None
         if hasattr(config, 'test_monitoring') and config.test_monitoring.get('enabled', False):
             try:
-                from .test_monitor import TestMonitor, TestMonitorIntegration
+                # Try continuous test monitor first
+                from .continuous_test_monitor import get_test_monitor
                 
                 test_config = config.test_monitoring
-                self.test_monitor = TestMonitor(
-                    test_dir=test_config.get('test_dir', 'tests'),
-                    result_dir=test_config.get('result_dir', '.test_results'),
-                    watch_patterns=test_config.get('watch_patterns', ['test_*.py'])
-                )
-                
-                # Create integration
-                self.test_monitor_integration = TestMonitorIntegration(self, self.test_monitor)
+                self.test_monitor = get_test_monitor(test_config)
                 
                 # Start monitoring if auto-start is enabled
                 if test_config.get('auto_start', True):
-                    interval = test_config.get('check_interval', 60)
-                    self.test_monitor.start_monitoring(interval)
-                    logger.info(f"Test monitoring started with {interval}s interval")
-                
-                # Add test result callback for feedback
-                if self.feedback_storage:
-                    def store_test_feedback(results):
-                        try:
-                            from .feedback_model import create_test_feedback, FeedbackSeverity
-                            
-                            failed = sum(1 for r in results if r.status.value == 'failed')
-                            passed = sum(1 for r in results if r.status.value == 'passed')
-                            
-                            feedback = create_test_feedback(
-                                test_suite="continuous_monitoring",
-                                passed=passed,
-                                failed=failed,
-                                duration=sum(r.duration for r in results),
-                                failures=[{"test": r.test_name, "error": r.error_message} 
-                                         for r in results if r.status.value == 'failed'],
-                                severity=FeedbackSeverity.ERROR if failed > 0 else FeedbackSeverity.INFO,
-                                session_id=str(id(self))
-                            )
-                            self.feedback_storage.save(feedback)
-                        except Exception as e:
-                            logger.debug(f"Failed to store test feedback: {e}")
+                    self.test_monitor.start()
+                    logger.info(f"Continuous test monitoring started with {test_config.get('check_interval', 60)}s interval")
+            except ImportError:
+                # Fall back to original test monitor
+                try:
+                    from .test_monitor import TestMonitor, TestMonitorIntegration
                     
-                    self.test_monitor.add_callback(store_test_feedback)
+                    test_config = config.test_monitoring
+                    self.test_monitor = TestMonitor(
+                        test_dir=test_config.get('test_dir', 'tests'),
+                        result_dir=test_config.get('result_dir', '.test_results'),
+                        watch_patterns=test_config.get('watch_patterns', ['test_*.py'])
+                    )
+                    
+                    # Create integration
+                    self.test_monitor_integration = TestMonitorIntegration(self, self.test_monitor)
+                    
+                    # Start monitoring if auto-start is enabled
+                    if test_config.get('auto_start', True):
+                        interval = test_config.get('check_interval', 60)
+                        self.test_monitor.start_monitoring(interval)
+                        logger.info(f"Test monitoring started with {interval}s interval")
+                except Exception as e:
+                    logger.warning(f"Failed to initialize test monitoring: {e}")
                 
-            except Exception as e:
-                logger.warning(f"Failed to initialize test monitoring: {e}")
+            # Add test result callback for feedback (for both monitors)
+            if self.feedback_storage and self.test_monitor:
+                def store_test_feedback(results):
+                    try:
+                        from .feedback_model import create_test_feedback, FeedbackSeverity
+                        
+                        # Handle both result types
+                        if hasattr(results, '__iter__'):
+                            failed = sum(1 for r in results if getattr(r, 'status', None) and r.status.value == 'failed')
+                            passed = sum(1 for r in results if getattr(r, 'status', None) and r.status.value == 'passed')
+                            duration = sum(getattr(r, 'duration', 0) for r in results)
+                            failures = [{"test": r.test_name, "error": getattr(r, 'error_message', None)} 
+                                       for r in results if getattr(r, 'status', None) and r.status.value == 'failed']
+                        else:
+                            # Single result
+                            failed = 1 if results.status.value == 'failed' else 0
+                            passed = 1 if results.status.value == 'passed' else 0
+                            duration = results.duration
+                            failures = [{"test": results.test_name, "error": results.error_message}] if failed else []
+                        
+                        feedback = create_test_feedback(
+                            test_suite="continuous_monitoring",
+                            passed=passed,
+                            failed=failed,
+                            duration=duration,
+                            failures=failures,
+                            severity=FeedbackSeverity.ERROR if failed > 0 else FeedbackSeverity.INFO,
+                            session_id=str(id(self))
+                        )
+                        self.feedback_storage.save(feedback)
+                    except Exception as e:
+                        logger.debug(f"Failed to store test feedback: {e}")
+                
+                # Set callback based on monitor type
+                if hasattr(self.test_monitor, 'on_test_complete'):
+                    self.test_monitor.on_test_complete = lambda result: store_test_feedback([result])
+                elif hasattr(self.test_monitor, 'add_callback'):
+                    self.test_monitor.add_callback(store_test_feedback)
         
         # Initialize interactive feedback if configured
         self.interactive_feedback = None
+        self.feedback_integration = None
         if hasattr(config, 'interactive_feedback') and config.interactive_feedback.get('enabled', False):
             try:
-                from .interactive_feedback import InteractiveFeedbackIntegration
-                self.interactive_feedback = InteractiveFeedbackIntegration(self)
-                logger.info("Interactive feedback system initialized")
-            except Exception as e:
-                logger.warning(f"Failed to initialize interactive feedback: {e}")
+                from .feedback_integration import integrate_feedback_collection
+                self.feedback_integration = integrate_feedback_collection(self)
+                logger.info("Feedback collection integrated into decision points")
+            except ImportError:
+                try:
+                    from .interactive_feedback import InteractiveFeedbackIntegration
+                    self.interactive_feedback = InteractiveFeedbackIntegration(self)
+                    logger.info("Interactive feedback system initialized")
+                except Exception as e:
+                    logger.warning(f"Failed to initialize interactive feedback: {e}")
         
         # Initialize plan validator
         self.plan_validator = None
