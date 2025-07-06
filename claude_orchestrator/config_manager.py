@@ -547,12 +547,18 @@ class EnhancedConfig:
     bash_max_output_length = ConfigProperty("execution.bash_max_output_length", 30000)
     default_working_dir = ConfigProperty("execution.default_working_dir", None)
     
+    # Retry configurations
+    max_retries = ConfigProperty("execution.max_retries", 3, lambda x: max(0, int(x)))
+    retry_base_delay = ConfigProperty("execution.retry_base_delay", 1.0, lambda x: max(0.1, float(x)))
+    retry_max_delay = ConfigProperty("execution.retry_max_delay", 60.0, lambda x: max(1.0, float(x)))
+    
     # Monitoring configurations
     progress_interval = ConfigProperty("monitoring.progress_interval", 10)
     verbose_logging = ConfigProperty("monitoring.verbose_logging", False)
     enable_opus_review = ConfigProperty("monitoring.enable_opus_review", True)
     show_progress_bar = ConfigProperty("monitoring.show_progress_bar", True)
     usage_warning_threshold = ConfigProperty("monitoring.usage_warning_threshold", 80)
+    usage_critical_threshold = ConfigProperty("monitoring.usage_critical_threshold", 95)
     check_usage_before_start = ConfigProperty("monitoring.check_usage_before_start", True)
     
     # Notification configurations
@@ -570,6 +576,9 @@ class EnhancedConfig:
     # Git configurations
     git_auto_commit = ConfigProperty("git.auto_commit", False)
     git_commit_prefix = ConfigProperty("git.commit_message_prefix", "🤖 Auto-commit by Claude Orchestrator")
+    
+    # Locale configurations
+    locale_language = ConfigProperty("locale.language", "en")
     
     def refresh(self):
         """Refresh configuration from sources"""

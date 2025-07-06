@@ -70,3 +70,26 @@ scripts/task_*.json
 
 # Keep the organize_files.py in root
 !organize_files.py
+
+# Additional security and cleanup
+.env.*
+*.pem
+*.key
+*.cert
+*.crt
+secrets/
+private/
+personal/
+*.bak
+*.orig
+*.rej
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+*.sublime-*
+.vscode-test/
+*.code-workspace
