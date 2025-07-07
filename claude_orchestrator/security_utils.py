@@ -59,7 +59,7 @@ def sanitize_error_message(message: str) -> str:
     # Remove potential paths with user directories
     message = re.sub(r'/Users/[^/\s]+', '/Users/***', message)
     message = re.sub(r'/home/[^/\s]+', '/home/***', message)
-    message = re.sub(r'C:\\Users\\[^\\]+', 'C:\\Users\\***', message)
+    message = re.sub(r'C:\\\\Users\\\\[^\\\\]+', r'C:\\Users\\***', message)
     
     # Remove email addresses
     message = re.sub(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', '***@***.***', message)

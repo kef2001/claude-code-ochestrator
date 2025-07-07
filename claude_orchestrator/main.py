@@ -739,6 +739,9 @@ Examples:
   co test-report                       # Generate test report
   co run-tests                         # Manually run all tests
   co run-tests pytest                  # Run specific test suite
+  
+  # Security
+  co security-audit                    # Run security audit for API keys
         """
     )
     
@@ -747,7 +750,7 @@ Examples:
                                'analyze-feedback', 'worker-performance', 'feedback-report', 'export-metrics',
                                'checkpoint', 'rollback', 'list-checkpoints',
                                'test-status', 'test-report', 'run-tests',
-                               'feedback-shell'],
+                               'feedback-shell', 'security-audit'],
                        help='Command to execute (default: run)')
     
     parser.add_argument('--config', '-c', 
@@ -834,7 +837,13 @@ Examples:
         # Check API key
         api_key = os.environ.get("ANTHROPIC_API_KEY") or config.claude_environment.get("ANTHROPIC_API_KEY")
         if api_key:
-            print("✅ ANTHROPIC_API_KEY is configured")
+            # Validate API key format
+            from claude_orchestrator.security_utils import validate_api_key
+            if validate_api_key(api_key):
+                print("✅ ANTHROPIC_API_KEY is configured and valid")
+            else:
+                print("⚠️  ANTHROPIC_API_KEY format appears invalid")
+                print("   API keys should start with 'sk-' and be at least 40 characters")
         else:
             print("❌ ANTHROPIC_API_KEY is not set")
             print("   Please set the environment variable or add to config")
@@ -1486,6 +1495,56 @@ Examples:
         else:
             print("❌ Test monitoring is not enabled")
         
+        sys.exit(0)
+    
+    elif args.command == 'security-audit':
+        # Run security audit
+        from claude_orchestrator.security_utils import perform_security_audit, check_file_permissions
+        
+        print("\n🔒 Running Security Audit...")
+        print("=" * 80)
+        
+        # Run the audit
+        findings = perform_security_audit()
+        
+        if findings:
+            print("\n⚠️  Security Findings:")
+            for finding in findings:
+                print(f"  - {finding}")
+        else:
+            print("\n✅ No security issues found")
+        
+        # Check for common security files
+        print("\n📋 Security File Checks:")
+        security_files = ['.env', '.env.example', 'SECURITY.md', 'LICENSE']
+        for file in security_files:
+            if os.path.exists(file):
+                perms = check_file_permissions(file)
+                if perms['exists']:
+                    status = "✅" if not perms['recommendations'] else "⚠️"
+                    print(f"{status} {file}")
+                    for rec in perms['recommendations']:
+                        print(f"    - {rec}")
+            else:
+                print(f"❌ {file} (not found)")
+        
+        # Check for hardcoded secrets
+        print("\n🔍 Scanning for potential secrets...")
+        import subprocess
+        try:
+            # Use ripgrep to search for potential API keys
+            result = subprocess.run(['rg', '-i', 'sk-[a-zA-Z0-9\\-]{40,}', '--type', 'py', '--glob', '!security_utils.py'],
+                                  capture_output=True, text=True)
+            if result.returncode == 0 and result.stdout:
+                print("⚠️  Potential API keys found in code:")
+                for line in result.stdout.strip().split('\n')[:5]:  # Show first 5 matches
+                    print(f"    {line}")
+            else:
+                print("✅ No hardcoded API keys found")
+        except FileNotFoundError:
+            print("⚠️  ripgrep (rg) not found, skipping secret scanning")
+        
+        print("\n✨ Security audit complete!")
         sys.exit(0)
     
     elif args.command == 'feedback-shell':

@@ -3514,7 +3514,7 @@
       "id": 190,
       "title": "Security audit for API key handling",
       "description": "Ensure all API keys and secrets are properly handled and not exposed",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         183
       ],
@@ -3523,7 +3523,7 @@
       "testStrategy": "Use tools like git-secrets to scan for exposed credentials",
       "subtasks": [],
       "createdAt": "2025-07-07T00:15:00.000000",
-      "updatedAt": "2025-07-07T00:15:00.000000",
+      "updatedAt": "2025-07-07T09:52:00.000000",
       "tags": [
         "security",
         "deployment-prep"
