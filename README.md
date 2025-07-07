@@ -1,5 +1,10 @@
 # Claude Orchestrator
 
+![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)
+![Code Style](https://img.shields.io/badge/code%20style-ruff-000000.svg)
+
 A powerful task orchestration system that uses Claude Opus as a manager and multiple Claude Sonnet instances as workers for parallel task processing.
 
 ## Features
@@ -10,6 +15,10 @@ A powerful task orchestration system that uses Claude Opus as a manager and mult
 - **Real-time Progress Tracking**: Beautiful progress display with multi-task visualization
 - **Error Handling & Retries**: Robust error handling with automatic retries for transient failures
 - **Session Usage Monitoring**: Tracks API usage and prevents limit exceeded errors
+- **Rollback System**: Comprehensive checkpoint and rollback functionality for safe task execution
+- **Feedback Collection**: Advanced feedback system for continuous improvement
+- **Security Features**: Built-in security audit, API key validation, and error sanitization
+- **Test Coverage**: Integrated testing framework with coverage reporting
 - **Slack Notifications**: Optional Slack integration for task completion notifications
 - **Git Integration**: Auto-commit changes after task completion (optional)
 - **Task Master Integration**: Built-in task management system with AI-powered task expansion
@@ -98,29 +107,81 @@ claude-orchestrator parse requirements.txt
 
 Execute all pending tasks:
 ```bash
-claude-orchestrator run
+co run
 ```
 
 Run with custom worker count:
 ```bash
-claude-orchestrator run --workers 5
+co run --workers 5
 ```
 
-Run with verbose logging:
+Run a specific task:
 ```bash
-claude-orchestrator run --verbose
+co run --id 123
+```
+
+### Task Management
+
+List all tasks:
+```bash
+co list
+co list --filter-status pending
+```
+
+Show task details:
+```bash
+co show 123
+```
+
+Update task status:
+```bash
+co update 123 --status in-progress
+```
+
+### Testing & Quality
+
+Run tests with coverage:
+```bash
+co coverage
+```
+
+Run security audit:
+```bash
+co security-audit
+```
+
+Check test status:
+```bash
+co test-status
+```
+
+### Rollback & Recovery
+
+Create checkpoint:
+```bash
+co checkpoint "Before major changes"
+```
+
+List checkpoints:
+```bash
+co list-checkpoints
+```
+
+Rollback to checkpoint:
+```bash
+co rollback cp_20250104_120000
 ```
 
 ### Monitoring
 
-Check session status and usage:
+Check setup and configuration:
 ```bash
-claude-orchestrator status
+co check
 ```
 
-List all tasks:
+Check session status:
 ```bash
-task-master list
+co status
 ```
 
 ## Configuration
