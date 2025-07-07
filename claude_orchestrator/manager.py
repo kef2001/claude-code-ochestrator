@@ -35,6 +35,12 @@ class OpusManager:
     """Opus model acting as the manager/orchestrator"""
     
     def __init__(self, config):
+        """Initialize the OpusManager.
+        
+        Args:
+            config: EnhancedConfig object containing orchestrator configuration
+                including max_workers, timeouts, and model settings.
+        """
         self.config = config
         # Add execution validation flag if not present
         if not hasattr(self.config, 'validate_execution'):
@@ -47,7 +53,16 @@ class OpusManager:
         self.active_tasks: Dict[str, WorkerTask] = {}
         
     def analyze_and_plan(self) -> List[WorkerTask]:
-        """Use Opus to analyze tasks and create execution plan"""
+        """Use Opus to analyze tasks and create execution plan.
+        
+        Fetches all pending and in-progress tasks from Task Master,
+        converts them to WorkerTask objects, sorts them by dependencies,
+        and prepares them for parallel execution.
+        
+        Returns:
+            List[WorkerTask]: Sorted list of tasks ready for execution,
+                with dependencies resolved and priorities considered.
+        """
         logger.info("Opus Manager: Analyzing project tasks...")
         
         # Show loading indicator
@@ -111,7 +126,18 @@ class OpusManager:
         return sorted_tasks
     
     def _sort_tasks_by_dependencies(self, tasks: List[WorkerTask]) -> List[WorkerTask]:
-        """Sort tasks ensuring dependencies come first"""
+        """Sort tasks ensuring dependencies come first.
+        
+        Performs topological sort on tasks based on their dependencies
+        to ensure tasks are executed in the correct order.
+        
+        Args:
+            tasks: List of WorkerTask objects to be sorted.
+            
+        Returns:
+            List[WorkerTask]: Topologically sorted list of tasks where
+                dependent tasks appear after their dependencies.
+        """
         # Create a map of task_id to task
         task_map = {task.task_id: task for task in tasks}
         

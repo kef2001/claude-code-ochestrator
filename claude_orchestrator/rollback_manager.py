@@ -156,13 +156,22 @@ class RollbackManager:
                          include_files: Optional[List[str]] = None) -> str:
         """Create a new checkpoint.
         
+        Creates a snapshot of current system state including task states,
+        file contents, and metadata. Automatically manages checkpoint
+        retention based on max_checkpoints setting.
+        
         Args:
-            checkpoint_type: Type of checkpoint
-            description: Checkpoint description
-            include_files: Specific files to include
+            checkpoint_type: Type of checkpoint (MANUAL, AUTOMATIC, etc).
+            description: Human-readable description of the checkpoint.
+            include_files: Specific files to include in snapshot. If None,
+                all tracked files will be included.
             
         Returns:
-            Checkpoint ID
+            str: Unique checkpoint ID in format 'cp_YYYYMMDD_HHMMSS_ffffff'.
+            
+        Raises:
+            OSError: If checkpoint directory cannot be created.
+            PermissionError: If insufficient permissions to create checkpoint.
         """
         with self._lock:
             checkpoint_id = f"cp_{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}"

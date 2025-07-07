@@ -50,6 +50,14 @@ class SonnetWorker:
     """Sonnet model acting as a worker"""
     
     def __init__(self, worker_id: int, working_dir: str, config):
+        """Initialize a SonnetWorker instance.
+        
+        Args:
+            worker_id: Unique identifier for this worker instance.
+            working_dir: Directory where the worker will execute tasks.
+            config: EnhancedConfig object containing worker configuration
+                including model settings, timeouts, and retry parameters.
+        """
         self.worker_id = worker_id
         self.working_dir = working_dir
         self.config = config
@@ -91,7 +99,19 @@ class SonnetWorker:
         logger.info(f"Worker {worker_id} initialized in {working_dir}")
     
     def process_task(self, task: WorkerTask) -> WorkerTask:
-        """Process a single task using Claude CLI"""
+        """Process a single task using Claude CLI or direct API.
+        
+        Executes the given task by creating a prompt, sending it to Claude,
+        and updating the task status based on the result. Handles error
+        cases with retry logic if available.
+        
+        Args:
+            task: WorkerTask object containing task details to be executed.
+            
+        Returns:
+            WorkerTask: The same task object with updated status, result,
+                and error information based on execution outcome.
+        """
         logger.info(f"Worker {self.worker_id}: Starting task {task.task_id} - {task.title}")
         
         try:

@@ -17,11 +17,22 @@ logger = logging.getLogger(__name__)
 def validate_api_key(key: str) -> bool:
     """Validate API key format and structure.
     
+    Checks if the provided API key follows the expected format for
+    Anthropic API keys. Valid keys should start with 'sk-', be at
+    least 40 characters long, and contain only alphanumeric characters
+    and hyphens.
+    
     Args:
-        key: API key to validate
+        key: API key string to validate.
         
     Returns:
-        True if key appears valid, False otherwise
+        bool: True if key appears valid, False otherwise.
+        
+    Examples:
+        >>> validate_api_key('sk-ant-api03-abc123...')
+        True
+        >>> validate_api_key('invalid-key')
+        False
     """
     if not key:
         return False
