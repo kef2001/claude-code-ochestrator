@@ -86,6 +86,7 @@ personal/
 .cache/
 .pytest_cache/
 .coverage
+coverage.xml
 htmlcov/
 .hypothesis/
 .mypy_cache/
