@@ -739,6 +739,7 @@ Examples:
   co test-report                       # Generate test report
   co run-tests                         # Manually run all tests
   co run-tests pytest                  # Run specific test suite
+  co coverage                          # Run tests with coverage report
   
   # Security
   co security-audit                    # Run security audit for API keys
@@ -749,7 +750,7 @@ Examples:
                        choices=['run', 'add', 'parse', 'check', 'status', 'init', 'list', 'show', 'next', 'update', 'expand', 'delete',
                                'analyze-feedback', 'worker-performance', 'feedback-report', 'export-metrics',
                                'checkpoint', 'rollback', 'list-checkpoints',
-                               'test-status', 'test-report', 'run-tests',
+                               'test-status', 'test-report', 'run-tests', 'coverage',
                                'feedback-shell', 'security-audit'],
                        help='Command to execute (default: run)')
     
@@ -1546,6 +1547,66 @@ Examples:
         
         print("\n✨ Security audit complete!")
         sys.exit(0)
+    
+    elif args.command == 'coverage':
+        # Run tests with coverage report
+        print("\n📊 Running Tests with Coverage Report...")
+        print("=" * 80)
+        
+        import subprocess
+        
+        # Check if pytest and pytest-cov are installed
+        try:
+            subprocess.run(['python3', '-m', 'pytest', '--version'], 
+                         capture_output=True, check=True)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            print("❌ pytest is not installed")
+            print("   Please install: pip install pytest pytest-cov")
+            sys.exit(1)
+        
+        # Run pytest with coverage
+        print("\n🧪 Running tests...")
+        result = subprocess.run([
+            'python3', '-m', 'pytest',
+            '--cov=claude_orchestrator',
+            '--cov-report=term-missing',
+            '--cov-report=html',
+            '--cov-report=json',
+            '-v'
+        ], capture_output=True, text=True)
+        
+        # Print output
+        print(result.stdout)
+        if result.stderr:
+            print(result.stderr)
+        
+        # Parse coverage percentage from JSON
+        if os.path.exists('coverage.json'):
+            import json
+            with open('coverage.json', 'r') as f:
+                coverage_data = json.load(f)
+                total_coverage = coverage_data['totals']['percent_covered']
+                
+            print(f"\n📈 Total Coverage: {total_coverage:.1f}%")
+            
+            # Provide feedback based on coverage
+            if total_coverage >= 90:
+                print("🎉 Excellent coverage!")
+            elif total_coverage >= 80:
+                print("✅ Good coverage!")
+            elif total_coverage >= 70:
+                print("🟡 Decent coverage, but could be improved")
+            elif total_coverage >= 60:
+                print("⚠️  Coverage needs improvement")
+            else:
+                print("❌ Low coverage - consider adding more tests")
+            
+            print("\n📁 Detailed HTML report: htmlcov/index.html")
+            
+            # Cleanup
+            os.remove('coverage.json')
+        
+        sys.exit(0 if result.returncode == 0 else 1)
     
     elif args.command == 'feedback-shell':
         # Launch interactive feedback shell

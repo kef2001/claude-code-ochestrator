@@ -3422,7 +3422,7 @@
       "id": 185,
       "title": "Add code coverage reporting",
       "description": "Set up pytest-cov and generate coverage reports to identify untested code",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         176
       ],
@@ -3431,7 +3431,7 @@
       "testStrategy": "Achieve >80% code coverage for core components",
       "subtasks": [],
       "createdAt": "2025-07-07T00:10:00.000000",
-      "updatedAt": "2025-07-07T00:10:00.000000",
+      "updatedAt": "2025-07-07T10:00:00.000000",
       "tags": [
         "testing",
         "quality"
